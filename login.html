@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistema de Ventas</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -74,35 +75,51 @@
     </div>
 
     <script>
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        
-        // Consultar usuario en Supabase
-        const { data, error } = await supabase
-            .from('usuarios')
-            .select('*')
-            .eq('username', username)
-            .single();
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            console.log('Intentando login con:', username); // Para depuración
+            
+            try {
+                // Consultar usuario en Supabase
+                const { data, error } = await supabaseClient
+                    .from('usuarios')
+                    .select('*')
+                    .eq('username', username)
+                    .single();
 
-        if (error || !data) {
-            alert('Usuario no encontrado');
-            return;
-        }
+                if (error) {
+                    console.error('Error de Supabase:', error);
+                    alert('Error de conexión con la base de datos');
+                    return;
+                }
 
-        if (data.password !== password) {
-            alert('Contraseña incorrecta');
-            return;
-        }
+                if (!data) {
+                    alert('Usuario no encontrado');
+                    return;
+                }
 
-        // Guardar sesión
-        localStorage.setItem('userId', data.id);
-        localStorage.setItem('userName', data.nombre || data.username);
-        
-        alert('Login exitoso!');
-        location.href = 'dashboard.html';
-    });
-</script>
+                if (data.password !== password) {
+                    alert('Contraseña incorrecta');
+                    return;
+                }
+
+                // Guardar sesión
+                localStorage.setItem('userId', data.id);
+                localStorage.setItem('userName', data.nombre || data.username);
+                localStorage.setItem('userRole', data.rol || 'dependiente');
+                
+                alert('Login exitoso!');
+                location.href = 'dashboard.html';
+                
+            } catch (error) {
+                console.error('Error en login:', error);
+                alert('Error al iniciar sesión: ' + error.message);
+            }
+        });
+    </script>
 </body>
 </html>
