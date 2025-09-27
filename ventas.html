@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Venta</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -81,10 +82,10 @@
         
         <form id="ventaForm">
             <div class="form-group">
-                <label>M閠odo de Pago:</label>
+                <label>M茅todo de Pago:</label>
                 <select id="metodo_pago" onchange="toggleClienteSection()">
                     <option value="efectivo">Efectivo</option>
-                    <option value="transfermovil">Transferm髒il</option>
+                    <option value="transfermovil">Transferm贸vil</option>
                     <option value="enzona">Enzona</option>
                 </select>
             </div>
@@ -104,11 +105,11 @@
                     <input type="text" id="cliente_dni">
                 </div>
                 <div class="form-group">
-                    <label>N鷐ero de Tel閒ono M髒il:</label>
+                    <label>N煤mero de Tel茅fono M贸vil:</label>
                     <input type="tel" id="cliente_telefono">
                 </div>
                 <div class="form-group">
-                    <label>C骴igo de Transferencia:</label>
+                    <label>C贸digo de Transferencia:</label>
                     <input type="text" id="codigo_pago">
                 </div>
                 <div class="form-group">
@@ -129,11 +130,6 @@
                         <label>Producto:</label>
                         <select class="producto-select" onchange="calcularTotal()">
                             <option value="">Selecciona producto</option>
-                            <option value="1" data-precio="2.50">Cerveza - $2.50</option>
-                            <option value="2" data-precio="1.00">Refresco - $1.00</option>
-                            <option value="3" data-precio="5.00">Chorizo - $5.00</option>
-                            <option value="4" data-precio="3.00">Huevos - $3.00</option>
-                            <option value="5" data-precio="1.50">Jab髇 - $1.50</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -156,118 +152,209 @@
     </div>
 
     <script>
-    // Verificar sesi髇
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-        location.href = 'index.html';
-    }
-
-    async function cargarProductos() {
-        const { data, error } = await supabase
-            .from('productos')
-            .select('*');
-
-        if (error) {
-            console.error('Error al cargar productos:', error);
-            return;
+        // Verificar sesi贸n
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            location.href = 'index.html';
         }
 
-        // Actualizar todos los selects de productos
-        const selects = document.querySelectorAll('.producto-select');
-        selects.forEach(select => {
-            select.innerHTML = '<option value="">Selecciona producto</option>';
-            data.forEach(producto => {
-                const option = document.createElement('option');
-                option.value = producto.id;
-                option.textContent = `${producto.nombre} - $${parseFloat(producto.precio).toFixed(2)}`;
-                option.dataset.precio = producto.precio;
-                select.appendChild(option);
-            });
-        });
-    }
+        async function cargarProductos() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('productos')
+                    .select('*');
 
-    async function registrarVenta() {
-        const metodoPago = document.getElementById('metodo_pago').value;
-        
-        // Validar campos requeridos para transferencias
-        if (metodoPago !== 'efectivo') {
-            const nombre = document.getElementById('cliente_nombre').value;
-            const apellido = document.getElementById('cliente_apellido').value;
-            const dni = document.getElementById('cliente_dni').value;
-            const telefono = document.getElementById('cliente_telefono').value;
-            const codigo = document.getElementById('codigo_pago').value;
-            const banco = document.getElementById('banco').value;
+                if (error) {
+                    console.error('Error al cargar productos:', error);
+                    alert('Error al cargar productos: ' + error.message);
+                    return;
+                }
 
-            if (!nombre || !apellido || !dni || !telefono || !codigo || !banco) {
-                alert('Por favor, completa todos los campos del cliente para pagos electr髇icos');
-                return;
+                // Actualizar todos los selects de productos
+                const selects = document.querySelectorAll('.producto-select');
+                selects.forEach(select => {
+                    select.innerHTML = '<option value="">Selecciona producto</option>';
+                    data.forEach(producto => {
+                        const option = document.createElement('option');
+                        option.value = producto.id;
+                        option.textContent = `${producto.nombre} - $${parseFloat(producto.precio).toFixed(2)}`;
+                        option.dataset.precio = producto.precio;
+                        select.appendChild(option);
+                    });
+                });
+            } catch (error) {
+                console.error('Error al cargar productos:', error);
+                alert('Error al cargar productos: ' + error.message);
             }
         }
 
-        const total = parseFloat(document.getElementById('total-amount').textContent);
-
-        // Registrar venta en Supabase
-        const { data: venta, error: error1 } = await supabase
-            .from('ventas')
-            .insert([{
-                usuario_id: userId,
-                cliente_nombre: document.getElementById('cliente_nombre').value || '',
-                cliente_apellido: document.getElementById('cliente_apellido').value || '',
-                cliente_dni: document.getElementById('cliente_dni').value || '',
-                cliente_telefono: document.getElementById('cliente_telefono').value || '',
-                metodo_pago: metodoPago,
-                codigo_pago: document.getElementById('codigo_pago').value || '',
-                banco: document.getElementById('banco').value || '',
-                total: total
-            }]);
-
-        if (error1) {
-            alert('Error al registrar venta: ' + error1.message);
-            return;
-        }
-
-        // Actualizar stock
-        const items = document.querySelectorAll('.producto-item');
-        for (const item of items) {
-            const select = item.querySelector('.producto-select');
-            const input = item.querySelector('.cantidad-input');
+        async function registrarVenta() {
+            const metodoPago = document.getElementById('metodo_pago').value;
             
-            if (select.value && input.value) {
-                const productoId = select.value;
-                const cantidad = parseInt(input.value);
-                
-                // Actualizar stock
-                const {  producto, error } = await supabase
-                    .from('productos')
-                    .select('stock')
-                    .eq('id', productoId)
-                    .single();
+            // Validar campos requeridos para transferencias
+            if (metodoPago !== 'efectivo') {
+                const nombre = document.getElementById('cliente_nombre').value;
+                const apellido = document.getElementById('cliente_apellido').value;
+                const dni = document.getElementById('cliente_dni').value;
+                const telefono = document.getElementById('cliente_telefono').value;
+                const codigo = document.getElementById('codigo_pago').value;
+                const banco = document.getElementById('banco').value;
 
-                if (!error && producto) {
-                    const nuevoStock = producto.stock - cantidad;
-                    await supabase
-                        .from('productos')
-                        .update({ stock: nuevoStock })
-                        .eq('id', productoId);
+                if (!nombre || !apellido || !dni || !telefono || !codigo || !banco) {
+                    alert('Por favor, completa todos los campos del cliente para pagos electr贸nicos');
+                    return;
                 }
             }
+
+            const total = parseFloat(document.getElementById('total-amount').textContent);
+
+            try {
+                // Registrar venta en Supabase
+                const {  venta, error: error1 } = await supabaseClient
+                    .from('ventas')
+                    .insert([{
+                        usuario_id: userId,
+                        cliente_nombre: document.getElementById('cliente_nombre').value || '',
+                        cliente_apellido: document.getElementById('cliente_apellido').value || '',
+                        cliente_dni: document.getElementById('cliente_dni').value || '',
+                        cliente_telefono: document.getElementById('cliente_telefono').value || '',
+                        metodo_pago: metodoPago,
+                        codigo_pago: document.getElementById('codigo_pago').value || '',
+                        banco: document.getElementById('banco').value || '',
+                        total: total
+                    }]);
+
+                if (error1) {
+                    alert('Error al registrar venta: ' + error1.message);
+                    return;
+                }
+
+                // Actualizar stock
+                const items = document.querySelectorAll('.producto-item');
+                for (const item of items) {
+                    const select = item.querySelector('.producto-select');
+                    const input = item.querySelector('.cantidad-input');
+                    
+                    if (select.value && input.value) {
+                        const productoId = select.value;
+                        const cantidad = parseInt(input.value);
+                        
+                        // Actualizar stock
+                        const {  producto, error } = await supabaseClient
+                            .from('productos')
+                            .select('stock')
+                            .eq('id', productoId)
+                            .single();
+
+                        if (!error && producto) {
+                            const nuevoStock = producto.stock - cantidad;
+                            await supabaseClient
+                                .from('productos')
+                                .update({ stock: nuevoStock })
+                                .eq('id', productoId);
+                        }
+                    }
+                }
+
+                // Enviar notificaci贸n a Telegram
+                const clienteNombre = document.getElementById('cliente_nombre').value || 'Efectivo';
+                const clienteApellido = document.getElementById('cliente_apellido').value || '';
+                const mensaje = `馃洅 Nueva venta registrada:\nCliente: ${clienteNombre} ${clienteApellido}\nM茅todo: ${metodoPago}\nTotal: $${total.toFixed(2)}\nFecha: ${new Date().toLocaleString()}`;
+                
+                try {
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            chat_id: TELEGRAM_CHAT_ID,
+                            text: mensaje
+                        })
+                    });
+                } catch (error) {
+                    console.error('Error al enviar notificaci贸n a Telegram:', error);
+                }
+
+                alert('Venta registrada exitosamente!\nTotal: $' + total.toFixed(2));
+                location.href = 'dashboard.html';
+            } catch (error) {
+                alert('Error al registrar venta: ' + error.message);
+            }
         }
 
-        alert('Venta registrada exitosamente!\nTotal: $' + total.toFixed(2));
-        location.href = 'dashboard.html';
-    }
+        function toggleClienteSection() {
+            const metodoPago = document.getElementById('metodo_pago');
+            const clienteSection = document.getElementById('cliente-section');
+            
+            if (metodoPago.value !== 'efectivo') {
+                clienteSection.classList.remove('hidden');
+            } else {
+                clienteSection.classList.add('hidden');
+            }
+        }
 
-    // Evento para el formulario
-    document.getElementById('ventaForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        registrarVenta();
-    });
+        function addProducto() {
+            const container = document.getElementById('productos-container');
+            const newItem = document.createElement('div');
+            newItem.className = 'producto-item';
+            newItem.innerHTML = `
+                <div class="form-group">
+                    <label>Producto:</label>
+                    <select class="producto-select" onchange="calcularTotal()">
+                        <option value="">Selecciona producto</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Cantidad:</label>
+                    <input type="number" class="cantidad-input" min="1" value="1" onchange="calcularTotal()">
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="removeProducto(this)">Eliminar</button>
+            `;
+            container.appendChild(newItem);
+            cargarProductos();
+            calcularTotal();
+        }
 
-    // Cargar productos al iniciar
-    document.addEventListener('DOMContentLoaded', function() {
-        cargarProductos();
-        calcularTotal();
-    });
-</script>
+        function removeProducto(button) {
+            const item = button.parentElement;
+            if (document.querySelectorAll('.producto-item').length > 1) {
+                item.remove();
+                calcularTotal();
+            } else {
+                alert('Debe haber al menos un producto');
+            }
+        }
+
+        function calcularTotal() {
+            let total = 0;
+            const items = document.querySelectorAll('.producto-item');
+            
+            items.forEach(item => {
+                const select = item.querySelector('.producto-select');
+                const input = item.querySelector('.cantidad-input');
+                
+                if (select.value && input.value) {
+                    const precio = parseFloat(select.options[select.selectedIndex].dataset.precio);
+                    const cantidad = parseInt(input.value);
+                    total += precio * cantidad;
+                }
+            });
+            
+            document.getElementById('total-amount').textContent = total.toFixed(2);
+        }
+
+        // Evento para el formulario
+        document.getElementById('ventaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            registrarVenta();
+        });
+
+        // Cargar productos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarProductos();
+            calcularTotal();
+        });
+    </script>
 </body>
 </html>
