@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Ventas - Vendly</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            margin: 12px 0;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-ventas {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .btn-ventas:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+        
+        .btn-dashboard {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+        
+        .btn-dashboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(67, 233, 123, 0.3);
+        }
+        
+        .features {
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            color: #666;
+        }
+        
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">??</div>
+        <h1>Sistema de Ventas</h1>
+        <p class="subtitle">Gestión eficiente de ventas y inventario</p>
+        
+        <div class="features">
+            <div class="feature">
+                <span class="feature-icon">?</span>
+                <span>Registro de ventas por transferencia y efectivo</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">?</span>
+                <span>Control de inventario en tiempo real</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">?</span>
+                <span>Notificaciones por Telegram</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">?</span>
+                <span>Acceso por usuario y contraseña</span>
+            </div>
+        </div>
+        
+        <a href="login.html" class="btn btn-login">Iniciar Sesión</a>
+        <a href="ventas.html" class="btn btn-ventas">Registrar Venta</a>
+        <a href="dashboard.html" class="btn btn-dashboard">Dashboard</a>
+        
+        <div class="footer">
+            Sistema de Ventas - Vendly v1.0
+        </div>
+    </div>
+</body>
+</html>
