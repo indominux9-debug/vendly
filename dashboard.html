@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema de Ventas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #007bff;
+        }
+        .stat-card h3 {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .stat-card p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 10px 0 0 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .low-stock {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .btn {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .add-product-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Dashboard</h2>
+            <div>
+                <button class="btn btn-success" onclick="location.href='ventas.html'">Registrar Venta</button>
+                <button class="btn" onclick="location.href='index.html'">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Vendido Hoy</h3>
+                <p id="total-vendido">$0.00</p>
+            </div>
+            <div class="stat-card">
+                <h3>Efectivo</h3>
+                <p id="total-efectivo">$0.00</p>
+            </div>
+            <div class="stat-card">
+                <h3>Transferencia</h3>
+                <p id="total-transferencia">$0.00</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Ventas</h3>
+                <p id="total-ventas">0</p>
+            </div>
+        </div>
+
+        <h3>Inventario</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="inventory-body">
+                <!-- Los datos se cargarán aquí -->
+            </tbody>
+        </table>
+
+        <div class="add-product-section">
+            <h3>Agregar Producto</h3>
+            <div class="form-group">
+                <input type="text" id="nuevo-producto" placeholder="Nombre del producto">
+            </div>
+            <div class="form-group">
+                <input type="number" id="nuevo-precio" placeholder="Precio" step="0.01">
+            </div>
+            <div class="form-group">
+                <input type="number" id="nuevo-stock" placeholder="Cantidad inicial">
+            </div>
+            <button class="btn btn-success" onclick="agregarProducto()">Agregar Producto</button>
+        </div>
+    </div>
+
+    <script>
+    // Verificar sesión
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    
+    if (!userId) {
+        location.href = 'index.html';
+    }
+
+    // Mostrar nombre de usuario
+    document.querySelector('.header h2').textContent = `Dashboard - ${userName}`;
+
+    // Cargar datos desde Supabase
+    async function cargarDatos() {
+        // Cargar inventario
+        const { data: productos, error: error1 } = await supabase
+            .from('productos')
+            .select('*');
+
+        if (!error1 && productos) {
+            mostrarInventario(productos);
+        }
+
+        // Cargar ventas del día
+        const hoy = new Date().toISOString().split('T')[0];
+        const { data: ventas, error: error2 } = await supabase
+            .from('ventas')
+            .select('*')
+            .eq('usuario_id', userId)
+            .gte('creado_en', `${hoy}T00:00:00`)
+            .lt('creado_en', `${hoy}T23:59:59`);
+
+        if (!error2 && ventas) {
+            mostrarEstadisticas(ventas);
+        }
+    }
+
+    function mostrarInventario(productos) {
+        const tbody = document.getElementById('inventory-body');
+        tbody.innerHTML = '';
+
+        productos.forEach(producto => {
+            const row = document.createElement('tr');
+            const stockClass = producto.stock < 5 ? 'low-stock' : '';
+            
+            row.innerHTML = `
+                <td>${producto.nombre}</td>
+                <td>$${parseFloat(producto.precio).toFixed(2)}</td>
+                <td class="${stockClass}">${producto.stock}</td>
+                <td>
+                    <button class="btn" onclick="editarProducto('${producto.id}', '${producto.nombre}', ${producto.stock})">Editar</button>
+                    <button class="btn btn-danger" onclick="eliminarProducto('${producto.id}')">Eliminar</button>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    }
+
+    function mostrarEstadisticas(ventas) {
+        let totalVendido = 0;
+        let totalEfectivo = 0;
+        let totalTransferencia = 0;
+
+        ventas.forEach(venta => {
+            totalVendido += parseFloat(venta.total);
+            
+            if (venta.metodo_pago === 'efectivo') {
+                totalEfectivo += parseFloat(venta.total);
+            } else {
+                totalTransferencia += parseFloat(venta.total);
+            }
+        });
+
+        document.getElementById('total-vendido').textContent = '$' + totalVendido.toFixed(2);
+        document.getElementById('total-efectivo').textContent = '$' + totalEfectivo.toFixed(2);
+        document.getElementById('total-transferencia').textContent = '$' + totalTransferencia.toFixed(2);
+        document.getElementById('total-ventas').textContent = ventas.length;
+    }
+
+    async function agregarProducto() {
+        const nombre = document.getElementById('nuevo-producto').value;
+        const precio = parseFloat(document.getElementById('nuevo-precio').value);
+        const stock = parseInt(document.getElementById('nuevo-stock').value);
+
+        if (!nombre || !precio || !stock) {
+            alert('Por favor, completa todos los campos');
+            return;
+        }
+
+        const { error } = await supabase
+            .from('productos')
+            .insert([{
+                nombre: nombre,
+                precio: precio,
+                stock: stock
+            }]);
+
+        if (error) {
+            alert('Error al agregar producto: ' + error.message);
+            return;
+        }
+
+        // Limpiar formulario
+        document.getElementById('nuevo-producto').value = '';
+        document.getElementById('nuevo-precio').value = '';
+        document.getElementById('nuevo-stock').value = '';
+
+        // Recargar datos
+        cargarDatos();
+        alert('Producto agregado exitosamente!');
+    }
+
+    async function editarProducto(id, nombre, stockActual) {
+        const nuevoStock = prompt('Nuevo stock para ' + nombre + ':', stockActual);
+        if (nuevoStock !== null) {
+            const { error } = await supabase
+                .from('productos')
+                .update({ stock: parseInt(nuevoStock) })
+                .eq('id', id);
+
+            if (error) {
+                alert('Error al actualizar producto: ' + error.message);
+                return;
+            }
+
+            cargarDatos();
+            alert('Stock actualizado!');
+        }
+    }
+
+    async function eliminarProducto(id) {
+        if (confirm('¿Estás seguro de eliminar este producto?')) {
+            const { error } = await supabase
+                .from('productos')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                alert('Error al eliminar producto: ' + error.message);
+                return;
+            }
+
+            cargarDatos();
+            alert('Producto eliminado!');
+        }
+    }
+
+    // Cargar datos cuando se carga la página
+    document.addEventListener('DOMContentLoaded', cargarDatos);
+</script>
+</body>
+</html>

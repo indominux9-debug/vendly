@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Venta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .btn {
+            padding: 12px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        .total-display {
+            background: #d4edda;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #155724;
+        }
+        .hidden {
+            display: none;
+        }
+        .producto-item {
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Registrar Venta</h2>
+        
+        <form id="ventaForm">
+            <div class="form-group">
+                <label>Método de Pago:</label>
+                <select id="metodo_pago" onchange="toggleClienteSection()">
+                    <option value="efectivo">Efectivo</option>
+                    <option value="transfermovil">Transfermóvil</option>
+                    <option value="enzona">Enzona</option>
+                </select>
+            </div>
+
+            <div id="cliente-section" class="hidden">
+                <h3>Datos del Cliente</h3>
+                <div class="form-group">
+                    <label>Nombre:</label>
+                    <input type="text" id="cliente_nombre">
+                </div>
+                <div class="form-group">
+                    <label>Apellido:</label>
+                    <input type="text" id="cliente_apellido">
+                </div>
+                <div class="form-group">
+                    <label>Carnet de Identidad:</label>
+                    <input type="text" id="cliente_dni">
+                </div>
+                <div class="form-group">
+                    <label>Número de Teléfono Móvil:</label>
+                    <input type="tel" id="cliente_telefono">
+                </div>
+                <div class="form-group">
+                    <label>Código de Transferencia:</label>
+                    <input type="text" id="codigo_pago">
+                </div>
+                <div class="form-group">
+                    <label>Banco:</label>
+                    <select id="banco">
+                        <option value="">Selecciona banco</option>
+                        <option value="BANDEC">BANDEC</option>
+                        <option value="BPA">BPA</option>
+                        <option value="Metropolitano">Metropolitano</option>
+                    </select>
+                </div>
+            </div>
+
+            <h3>Productos</h3>
+            <div id="productos-container">
+                <div class="producto-item">
+                    <div class="form-group">
+                        <label>Producto:</label>
+                        <select class="producto-select" onchange="calcularTotal()">
+                            <option value="">Selecciona producto</option>
+                            <option value="1" data-precio="2.50">Cerveza - $2.50</option>
+                            <option value="2" data-precio="1.00">Refresco - $1.00</option>
+                            <option value="3" data-precio="5.00">Chorizo - $5.00</option>
+                            <option value="4" data-precio="3.00">Huevos - $3.00</option>
+                            <option value="5" data-precio="1.50">Jabón - $1.50</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad:</label>
+                        <input type="number" class="cantidad-input" min="1" value="1" onchange="calcularTotal()">
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="removeProducto(this)">Eliminar</button>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-secondary" onclick="addProducto()">+ Agregar Producto</button>
+            
+            <div class="total-display">
+                Total a pagar: $<span id="total-amount">0.00</span>
+            </div>
+
+            <button type="submit" class="btn">Registrar Venta</button>
+            <button type="button" class="btn btn-secondary" onclick="location.href='dashboard.html'">Volver al Dashboard</button>
+        </form>
+    </div>
+
+    <script>
+    // Verificar sesión
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        location.href = 'index.html';
+    }
+
+    async function cargarProductos() {
+        const { data, error } = await supabase
+            .from('productos')
+            .select('*');
+
+        if (error) {
+            console.error('Error al cargar productos:', error);
+            return;
+        }
+
+        // Actualizar todos los selects de productos
+        const selects = document.querySelectorAll('.producto-select');
+        selects.forEach(select => {
+            select.innerHTML = '<option value="">Selecciona producto</option>';
+            data.forEach(producto => {
+                const option = document.createElement('option');
+                option.value = producto.id;
+                option.textContent = `${producto.nombre} - $${parseFloat(producto.precio).toFixed(2)}`;
+                option.dataset.precio = producto.precio;
+                select.appendChild(option);
+            });
+        });
+    }
+
+    async function registrarVenta() {
+        const metodoPago = document.getElementById('metodo_pago').value;
+        
+        // Validar campos requeridos para transferencias
+        if (metodoPago !== 'efectivo') {
+            const nombre = document.getElementById('cliente_nombre').value;
+            const apellido = document.getElementById('cliente_apellido').value;
+            const dni = document.getElementById('cliente_dni').value;
+            const telefono = document.getElementById('cliente_telefono').value;
+            const codigo = document.getElementById('codigo_pago').value;
+            const banco = document.getElementById('banco').value;
+
+            if (!nombre || !apellido || !dni || !telefono || !codigo || !banco) {
+                alert('Por favor, completa todos los campos del cliente para pagos electrónicos');
+                return;
+            }
+        }
+
+        const total = parseFloat(document.getElementById('total-amount').textContent);
+
+        // Registrar venta en Supabase
+        const { data: venta, error: error1 } = await supabase
+            .from('ventas')
+            .insert([{
+                usuario_id: userId,
+                cliente_nombre: document.getElementById('cliente_nombre').value || '',
+                cliente_apellido: document.getElementById('cliente_apellido').value || '',
+                cliente_dni: document.getElementById('cliente_dni').value || '',
+                cliente_telefono: document.getElementById('cliente_telefono').value || '',
+                metodo_pago: metodoPago,
+                codigo_pago: document.getElementById('codigo_pago').value || '',
+                banco: document.getElementById('banco').value || '',
+                total: total
+            }]);
+
+        if (error1) {
+            alert('Error al registrar venta: ' + error1.message);
+            return;
+        }
+
+        // Actualizar stock
+        const items = document.querySelectorAll('.producto-item');
+        for (const item of items) {
+            const select = item.querySelector('.producto-select');
+            const input = item.querySelector('.cantidad-input');
+            
+            if (select.value && input.value) {
+                const productoId = select.value;
+                const cantidad = parseInt(input.value);
+                
+                // Actualizar stock
+                const {  producto, error } = await supabase
+                    .from('productos')
+                    .select('stock')
+                    .eq('id', productoId)
+                    .single();
+
+                if (!error && producto) {
+                    const nuevoStock = producto.stock - cantidad;
+                    await supabase
+                        .from('productos')
+                        .update({ stock: nuevoStock })
+                        .eq('id', productoId);
+                }
+            }
+        }
+
+        alert('Venta registrada exitosamente!\nTotal: $' + total.toFixed(2));
+        location.href = 'dashboard.html';
+    }
+
+    // Evento para el formulario
+    document.getElementById('ventaForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        registrarVenta();
+    });
+
+    // Cargar productos al iniciar
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarProductos();
+        calcularTotal();
+    });
+</script>
+</body>
+</html>
