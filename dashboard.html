@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sistema de Ventas</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -122,7 +123,7 @@
             <h2>Dashboard</h2>
             <div>
                 <button class="btn btn-success" onclick="location.href='ventas.html'">Registrar Venta</button>
-                <button class="btn" onclick="location.href='index.html'">Cerrar Sesión</button>
+                <button class="btn" onclick="cerrarSesion()">Cerrar SesiÃ³n</button>
             </div>
         </div>
 
@@ -152,11 +153,11 @@
                     <th>Producto</th>
                     <th>Precio</th>
                     <th>Stock</th>
-                    <th>Acción</th>
+                    <th>AcciÃ³n</th>
                 </tr>
             </thead>
             <tbody id="inventory-body">
-                <!-- Los datos se cargarán aquí -->
+                <!-- Los datos se cargarÃ¡n aquÃ­ -->
             </tbody>
         </table>
 
@@ -176,155 +177,180 @@
     </div>
 
     <script>
-    // Verificar sesión
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-    
-    if (!userId) {
-        location.href = 'index.html';
-    }
-
-    // Mostrar nombre de usuario
-    document.querySelector('.header h2').textContent = `Dashboard - ${userName}`;
-
-    // Cargar datos desde Supabase
-    async function cargarDatos() {
-        // Cargar inventario
-        const { data: productos, error: error1 } = await supabase
-            .from('productos')
-            .select('*');
-
-        if (!error1 && productos) {
-            mostrarInventario(productos);
+        // Verificar sesiÃ³n
+        const userId = localStorage.getItem('userId');
+        const userName = localStorage.getItem('userName');
+        const userRole = localStorage.getItem('userRole');
+        
+        if (!userId) {
+            location.href = 'index.html';
         }
 
-        // Cargar ventas del día
-        const hoy = new Date().toISOString().split('T')[0];
-        const { data: ventas, error: error2 } = await supabase
-            .from('ventas')
-            .select('*')
-            .eq('usuario_id', userId)
-            .gte('creado_en', `${hoy}T00:00:00`)
-            .lt('creado_en', `${hoy}T23:59:59`);
+        // Mostrar nombre de usuario
+        document.querySelector('.header h2').textContent = `Dashboard - ${userName}`;
 
-        if (!error2 && ventas) {
-            mostrarEstadisticas(ventas);
-        }
-    }
+        // Cargar datos desde Supabase
+        async function cargarDatos() {
+            try {
+                // Cargar inventario
+                const {  productos, error: error1 } = await supabaseClient
+                    .from('productos')
+                    .select('*');
 
-    function mostrarInventario(productos) {
-        const tbody = document.getElementById('inventory-body');
-        tbody.innerHTML = '';
+                if (!error1 && productos) {
+                    mostrarInventario(productos);
+                }
 
-        productos.forEach(producto => {
-            const row = document.createElement('tr');
-            const stockClass = producto.stock < 5 ? 'low-stock' : '';
-            
-            row.innerHTML = `
-                <td>${producto.nombre}</td>
-                <td>$${parseFloat(producto.precio).toFixed(2)}</td>
-                <td class="${stockClass}">${producto.stock}</td>
-                <td>
-                    <button class="btn" onclick="editarProducto('${producto.id}', '${producto.nombre}', ${producto.stock})">Editar</button>
-                    <button class="btn btn-danger" onclick="eliminarProducto('${producto.id}')">Eliminar</button>
-                </td>
-            `;
-            
-            tbody.appendChild(row);
-        });
-    }
+                // Cargar ventas del dÃ­a
+                const hoy = new Date().toISOString().split('T')[0];
+                const { data: ventas, error: error2 } = await supabaseClient
+                    .from('ventas')
+                    .select('*')
+                    .eq('usuario_id', userId)
+                    .gte('creado_en', `${hoy}T00:00:00`)
+                    .lt('creado_en', `${hoy}T23:59:59`);
 
-    function mostrarEstadisticas(ventas) {
-        let totalVendido = 0;
-        let totalEfectivo = 0;
-        let totalTransferencia = 0;
-
-        ventas.forEach(venta => {
-            totalVendido += parseFloat(venta.total);
-            
-            if (venta.metodo_pago === 'efectivo') {
-                totalEfectivo += parseFloat(venta.total);
-            } else {
-                totalTransferencia += parseFloat(venta.total);
+                if (!error2 && ventas) {
+                    mostrarEstadisticas(ventas);
+                }
+            } catch (error) {
+                console.error('Error al cargar datos:', error);
+                alert('Error al cargar datos: ' + error.message);
             }
-        });
-
-        document.getElementById('total-vendido').textContent = '$' + totalVendido.toFixed(2);
-        document.getElementById('total-efectivo').textContent = '$' + totalEfectivo.toFixed(2);
-        document.getElementById('total-transferencia').textContent = '$' + totalTransferencia.toFixed(2);
-        document.getElementById('total-ventas').textContent = ventas.length;
-    }
-
-    async function agregarProducto() {
-        const nombre = document.getElementById('nuevo-producto').value;
-        const precio = parseFloat(document.getElementById('nuevo-precio').value);
-        const stock = parseInt(document.getElementById('nuevo-stock').value);
-
-        if (!nombre || !precio || !stock) {
-            alert('Por favor, completa todos los campos');
-            return;
         }
 
-        const { error } = await supabase
-            .from('productos')
-            .insert([{
-                nombre: nombre,
-                precio: precio,
-                stock: stock
-            }]);
+        function mostrarInventario(productos) {
+            const tbody = document.getElementById('inventory-body');
+            tbody.innerHTML = '';
 
-        if (error) {
-            alert('Error al agregar producto: ' + error.message);
-            return;
+            productos.forEach(producto => {
+                const row = document.createElement('tr');
+                const stockClass = producto.stock < 5 ? 'low-stock' : '';
+                
+                row.innerHTML = `
+                    <td>${producto.nombre}</td>
+                    <td>$${parseFloat(producto.precio).toFixed(2)}</td>
+                    <td class="${stockClass}">${producto.stock}</td>
+                    <td>
+                        <button class="btn" onclick="editarProducto('${producto.id}', '${producto.nombre}', ${producto.stock})">Editar</button>
+                        <button class="btn btn-danger" onclick="eliminarProducto('${producto.id}')">Eliminar</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
         }
 
-        // Limpiar formulario
-        document.getElementById('nuevo-producto').value = '';
-        document.getElementById('nuevo-precio').value = '';
-        document.getElementById('nuevo-stock').value = '';
+        function mostrarEstadisticas(ventas) {
+            let totalVendido = 0;
+            let totalEfectivo = 0;
+            let totalTransferencia = 0;
 
-        // Recargar datos
-        cargarDatos();
-        alert('Producto agregado exitosamente!');
-    }
+            ventas.forEach(venta => {
+                totalVendido += parseFloat(venta.total);
+                
+                if (venta.metodo_pago === 'efectivo') {
+                    totalEfectivo += parseFloat(venta.total);
+                } else {
+                    totalTransferencia += parseFloat(venta.total);
+                }
+            });
 
-    async function editarProducto(id, nombre, stockActual) {
-        const nuevoStock = prompt('Nuevo stock para ' + nombre + ':', stockActual);
-        if (nuevoStock !== null) {
-            const { error } = await supabase
-                .from('productos')
-                .update({ stock: parseInt(nuevoStock) })
-                .eq('id', id);
+            document.getElementById('total-vendido').textContent = totalVendido.toFixed(2);
+            document.getElementById('total-efectivo').textContent = totalEfectivo.toFixed(2);
+            document.getElementById('total-transferencia').textContent = totalTransferencia.toFixed(2);
+            document.getElementById('total-ventas').textContent = ventas.length;
+        }
 
-            if (error) {
-                alert('Error al actualizar producto: ' + error.message);
+        async function agregarProducto() {
+            const nombre = document.getElementById('nuevo-producto').value;
+            const precio = parseFloat(document.getElementById('nuevo-precio').value);
+            const stock = parseInt(document.getElementById('nuevo-stock').value);
+
+            if (!nombre || !precio || !stock) {
+                alert('Por favor, completa todos los campos');
                 return;
             }
 
-            cargarDatos();
-            alert('Stock actualizado!');
-        }
-    }
+            try {
+                const { error } = await supabaseClient
+                    .from('productos')
+                    .insert([{
+                        nombre: nombre,
+                        precio: precio,
+                        stock: stock
+                    }]);
 
-    async function eliminarProducto(id) {
-        if (confirm('¿Estás seguro de eliminar este producto?')) {
-            const { error } = await supabase
-                .from('productos')
-                .delete()
-                .eq('id', id);
+                if (error) {
+                    alert('Error al agregar producto: ' + error.message);
+                    return;
+                }
 
-            if (error) {
-                alert('Error al eliminar producto: ' + error.message);
-                return;
+                // Limpiar formulario
+                document.getElementById('nuevo-producto').value = '';
+                document.getElementById('nuevo-precio').value = '';
+                document.getElementById('nuevo-stock').value = '';
+
+                // Recargar datos
+                cargarDatos();
+                alert('Producto agregado exitosamente!');
+            } catch (error) {
+                alert('Error al agregar producto: ' + error.message);
             }
-
-            cargarDatos();
-            alert('Producto eliminado!');
         }
-    }
 
-    // Cargar datos cuando se carga la página
-    document.addEventListener('DOMContentLoaded', cargarDatos);
-</script>
+        async function editarProducto(id, nombre, stockActual) {
+            const nuevoStock = prompt('Nuevo stock para ' + nombre + ':', stockActual);
+            if (nuevoStock !== null) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('productos')
+                        .update({ stock: parseInt(nuevoStock) })
+                        .eq('id', id);
+
+                    if (error) {
+                        alert('Error al actualizar producto: ' + error.message);
+                        return;
+                    }
+
+                    cargarDatos();
+                    alert('Stock actualizado!');
+                } catch (error) {
+                    alert('Error al actualizar producto: ' + error.message);
+                }
+            }
+        }
+
+        async function eliminarProducto(id) {
+            if (confirm('Â¿EstÃ¡s seguro de eliminar este producto?')) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('productos')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) {
+                        alert('Error al eliminar producto: ' + error.message);
+                        return;
+                    }
+
+                    cargarDatos();
+                    alert('Producto eliminado!');
+                } catch (error) {
+                    alert('Error al eliminar producto: ' + error.message);
+                }
+            }
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userRole');
+            location.href = 'index.html';
+        }
+
+        // Cargar datos cuando se carga la pÃ¡gina
+        document.addEventListener('DOMContentLoaded', cargarDatos);
+    </script>
 </body>
 </html>
