@@ -216,7 +216,7 @@
 
             try {
                 // Registrar venta en Supabase
-                const {  venta, error: error1 } = await supabaseClient
+                const { error: error1 } = await supabaseClient
                     .from('ventas')
                     .insert([{
                         usuario_id: userId,
