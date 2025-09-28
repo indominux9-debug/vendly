@@ -115,6 +115,20 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .error {
+            text-align: center;
+            padding: 20px;
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
@@ -147,7 +161,10 @@
         </div>
 
         <h3>Inventario</h3>
-        <table>
+        <div id="inventario-loading" class="loading">
+            Cargando productos...
+        </div>
+        <table id="inventario-table" style="display: none;">
             <thead>
                 <tr>
                     <th>Producto</th>
@@ -160,6 +177,7 @@
                 <!-- Los datos se cargarán aquí -->
             </tbody>
         </table>
+        <div id="inventario-error" style="display: none;"></div>
 
         <div class="add-product-section">
             <h3>Agregar Producto</h3>
@@ -195,27 +213,60 @@
                 // Cargar inventario
                 const {  productos, error: error1 } = await supabaseClient
                     .from('productos')
-                    .select('*');
+                    .select('*')
+                    .order('nombre', { ascending: true });
 
-                if (!error1 && productos) {
+                if (error1) {
+                    console.error('Error al cargar productos:', error1);
+                    document.getElementById('inventario-loading').style.display = 'none';
+                    document.getElementById('inventario-error').innerHTML = `<div class="error">Error al cargar productos: ${error1.message}</div>`;
+                    document.getElementById('inventario-error').style.display = 'block';
+                    return;
+                }
+
+                console.log('Productos obtenidos:', productos); // Para depuración
+
+                if (productos && productos.length > 0) {
+                    document.getElementById('inventario-loading').style.display = 'none';
+                    document.getElementById('inventario-table').style.display = 'table';
                     mostrarInventario(productos);
+                } else {
+                    document.getElementById('inventario-loading').style.display = 'none';
+                    document.getElementById('inventario-table').style.display = 'table';
+                    document.getElementById('inventory-body').innerHTML = `<tr><td colspan="4" style="text-align: center;">No hay productos en inventario</td></tr>`;
                 }
 
                 // Cargar ventas del día
                 const hoy = new Date().toISOString().split('T')[0];
-                const { data: ventas, error: error2 } = await supabaseClient
+                const {  ventas, error: error2 } = await supabaseClient
                     .from('ventas')
                     .select('*')
                     .eq('usuario_id', userId)
                     .gte('creado_en', `${hoy}T00:00:00`)
                     .lt('creado_en', `${hoy}T23:59:59`);
 
-                if (!error2 && ventas) {
+                if (error2) {
+                    console.error('Error al cargar ventas:', error2);
+                    document.getElementById('total-ventas').textContent = '0';
+                    document.getElementById('total-vendido').textContent = '0.00';
+                    document.getElementById('total-efectivo').textContent = '0.00';
+                    document.getElementById('total-transferencia').textContent = '0.00';
+                    return;
+                }
+
+                if (ventas) {
                     mostrarEstadisticas(ventas);
+                } else {
+                    document.getElementById('total-ventas').textContent = '0';
+                    document.getElementById('total-vendido').textContent = '0.00';
+                    document.getElementById('total-efectivo').textContent = '0.00';
+                    document.getElementById('total-transferencia').textContent = '0.00';
                 }
             } catch (error) {
-                console.error('Error al cargar datos:', error);
-                alert('Error al cargar datos: ' + error.message);
+                console.error('Error general en cargarDatos:', error);
+                document.getElementById('inventario-loading').style.display = 'none';
+                document.getElementById('inventario-error').innerHTML = `<div class="error">Error al cargar datos: ${error.message}</div>`;
+                document.getElementById('inventario-error').style.display = 'block';
             }
         }
 
