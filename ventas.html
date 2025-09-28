@@ -74,6 +74,15 @@
             border-radius: 5px;
             background: #f9f9f9;
         }
+        .error {
+            text-align: center;
+            padding: 20px;
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
@@ -149,6 +158,8 @@
             <button type="submit" class="btn">Registrar Venta</button>
             <button type="button" class="btn btn-secondary" onclick="location.href='dashboard.html'">Volver al Dashboard</button>
         </form>
+        
+        <div id="venta-error" style="display: none;"></div>
     </div>
 
     <script>
@@ -216,7 +227,7 @@
 
             try {
                 // Registrar venta en Supabase
-                const { error: error1 } = await supabaseClient
+                const { data: venta, error: error1 } = await supabaseClient
                     .from('ventas')
                     .insert([{
                         usuario_id: userId,
@@ -231,9 +242,12 @@
                     }]);
 
                 if (error1) {
+                    console.error('Error al registrar venta:', error1);
                     alert('Error al registrar venta: ' + error1.message);
                     return;
                 }
+
+                console.log('Venta registrada:', venta); // Para depuración
 
                 // Actualizar stock
                 const items = document.querySelectorAll('.producto-item');
@@ -276,6 +290,8 @@
                                     console.error('Error al actualizar stock:', updateError);
                                     throw new Error('Error al actualizar stock: ' + updateError.message);
                                 }
+                                
+                                console.log(`Stock actualizado para ${producto.nombre}: ${producto.stock} -> ${nuevoStock}`); // Para depuración
                             }
                         } catch (error) {
                             console.error('Error al actualizar stock:', error);
@@ -308,6 +324,7 @@
                 alert('Venta registrada exitosamente!\nTotal: $' + total.toFixed(2));
                 location.href = 'dashboard.html';
             } catch (error) {
+                console.error('Error general en registrarVenta:', error);
                 alert('Error al registrar venta: ' + error.message);
             }
         }
