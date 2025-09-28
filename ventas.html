@@ -129,7 +129,7 @@
                     <div class="form-group">
                         <label>Producto:</label>
                         <select class="producto-select" onchange="calcularTotal()">
-                            <option value="">Selecciona producto</option>
+                            <option value="">Cargando productos...</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -174,13 +174,19 @@
                 const selects = document.querySelectorAll('.producto-select');
                 selects.forEach(select => {
                     select.innerHTML = '<option value="">Selecciona producto</option>';
-                    data.forEach(producto => {
-                        const option = document.createElement('option');
-                        option.value = producto.id;
-                        option.textContent = `${producto.nombre} - $${parseFloat(producto.precio).toFixed(2)}`;
-                        option.dataset.precio = producto.precio;
-                        select.appendChild(option);
-                    });
+                    if (data && data.length > 0) {
+                        data.forEach(producto => {
+                            // Convertir precio a número si es string
+                            const precio = parseFloat(producto.precio) || 0;
+                            const option = document.createElement('option');
+                            option.value = producto.id;
+                            option.textContent = `${producto.nombre} - $${precio.toFixed(2)} (Stock: ${producto.stock})`;
+                            option.dataset.precio = precio;
+                            select.appendChild(option);
+                        });
+                    } else {
+                        select.innerHTML = '<option value="">No hay productos disponibles</option>';
+                    }
                 });
             } catch (error) {
                 console.error('Error al cargar productos:', error);
@@ -239,19 +245,42 @@
                         const productoId = select.value;
                         const cantidad = parseInt(input.value);
                         
-                        // Actualizar stock
-                        const {  producto, error } = await supabaseClient
-                            .from('productos')
-                            .select('stock')
-                            .eq('id', productoId)
-                            .single();
-
-                        if (!error && producto) {
-                            const nuevoStock = producto.stock - cantidad;
-                            await supabaseClient
+                        try {
+                            // Obtener stock actual
+                            const {  producto, error: error2 } = await supabaseClient
                                 .from('productos')
-                                .update({ stock: nuevoStock })
-                                .eq('id', productoId);
+                                .select('stock')
+                                .eq('id', productoId)
+                                .single();
+
+                            if (error2) {
+                                console.error('Error al obtener producto:', error2);
+                                throw new Error('Error al obtener producto: ' + error2.message);
+                            }
+
+                            if (producto) {
+                                const nuevoStock = producto.stock - cantidad;
+                                
+                                // Verificar que no quede stock negativo
+                                if (nuevoStock < 0) {
+                                    alert(`No hay suficiente stock para ${select.options[select.selectedIndex].text}. Stock disponible: ${producto.stock}`);
+                                    return;
+                                }
+
+                                const { error: updateError } = await supabaseClient
+                                    .from('productos')
+                                    .update({ stock: nuevoStock })
+                                    .eq('id', productoId);
+
+                                if (updateError) {
+                                    console.error('Error al actualizar stock:', updateError);
+                                    throw new Error('Error al actualizar stock: ' + updateError.message);
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error al actualizar stock:', error);
+                            alert('Error al actualizar stock: ' + error.message);
+                            return;
                         }
                     }
                 }
@@ -302,7 +331,7 @@
                 <div class="form-group">
                     <label>Producto:</label>
                     <select class="producto-select" onchange="calcularTotal()">
-                        <option value="">Selecciona producto</option>
+                        <option value="">Cargando productos...</option>
                     </select>
                 </div>
                 <div class="form-group">
