@@ -278,9 +278,12 @@
                 const row = document.createElement('tr');
                 const stockClass = producto.stock < 5 ? 'low-stock' : '';
                 
+                // Convertir precio a número si es string
+                const precio = parseFloat(producto.precio) || 0;
+                
                 row.innerHTML = `
                     <td>${producto.nombre}</td>
-                    <td>$${parseFloat(producto.precio).toFixed(2)}</td>
+                    <td>$${precio.toFixed(2)}</td>
                     <td class="${stockClass}">${producto.stock}</td>
                     <td>
                         <button class="btn" onclick="editarProducto('${producto.id}', '${producto.nombre}', ${producto.stock})">Editar</button>
