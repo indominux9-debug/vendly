@@ -206,6 +206,8 @@
         }
 
         async function registrarVenta() {
+            console.log('Iniciando registro de venta...'); // Para depuración
+            
             const metodoPago = document.getElementById('metodo_pago').value;
             
             // Validar campos requeridos para transferencias
@@ -224,6 +226,7 @@
             }
 
             const total = parseFloat(document.getElementById('total-amount').textContent);
+            console.log('Total a pagar:', total); // Para depuración
 
             try {
                 // Registrar venta en Supabase
@@ -249,62 +252,79 @@
 
                 console.log('Venta registrada:', venta); // Para depuración
 
-                // Actualizar stock - PASO POR PASO
+                // Actualizar stock - CON DEPURACIÓN
+                console.log('Buscando items de producto...'); // Para depuración
                 const items = document.querySelectorAll('.producto-item');
+                console.log('Número de items encontrados:', items.length); // Para depuración
+
                 for (const item of items) {
+                    console.log('Procesando item:', item); // Para depuración
+                    
                     const select = item.querySelector('.producto-select');
                     const input = item.querySelector('.cantidad-input');
                     
-                    if (select.value && input.value) {
-                        const productoId = select.value;
-                        const cantidad = parseInt(input.value);
+                    console.log('Select encontrado:', select); // Para depuración
+                    console.log('Input encontrado:', input); // Para depuración
+                    
+                    if (select && input) {
+                        console.log('Select value:', select.value); // Para depuración
+                        console.log('Input value:', input.value); // Para depuración
                         
-                        console.log(`Actualizando stock para producto ID: ${productoId}, cantidad: ${cantidad}`); // Para depuración
-                        
-                        try {
-                            // Obtener stock actual
-                            const {  producto, error: error2 } = await supabaseClient
-                                .from('productos')
-                                .select('stock, nombre')
-                                .eq('id', productoId)
-                                .single();
+                        if (select.value && input.value) {
+                            const productoId = select.value;
+                            const cantidad = parseInt(input.value);
+                            
+                            console.log(`Actualizando stock para producto ID: ${productoId}, cantidad: ${cantidad}`); // Para depuración
+                            
+                            try {
+                                // Obtener stock actual
+                                const {  producto, error: error2 } = await supabaseClient
+                                    .from('productos')
+                                    .select('stock, nombre')
+                                    .eq('id', productoId)
+                                    .single();
 
-                            if (error2) {
-                                console.error('Error al obtener producto:', error2);
-                                alert('Error al obtener producto: ' + error2.message);
+                                if (error2) {
+                                    console.error('Error al obtener producto:', error2);
+                                    alert('Error al obtener producto: ' + error2.message);
+                                    return;
+                                }
+
+                                if (producto) {
+                                    console.log(`Stock actual de ${producto.nombre}: ${producto.stock}`); // Para depuración
+                                    
+                                    const nuevoStock = producto.stock - cantidad;
+                                    
+                                    // Verificar que no quede stock negativo
+                                    if (nuevoStock < 0) {
+                                        alert(`No hay suficiente stock para ${producto.nombre}. Stock disponible: ${producto.stock}`);
+                                        return;
+                                    }
+
+                                    // Actualizar stock en Supabase
+                                    const { error: updateError } = await supabaseClient
+                                        .from('productos')
+                                        .update({ stock: nuevoStock })
+                                        .eq('id', productoId);
+
+                                    if (updateError) {
+                                        console.error('Error al actualizar stock:', updateError);
+                                        alert('Error al actualizar stock: ' + updateError.message);
+                                        return;
+                                    }
+                                    
+                                    console.log(`Stock actualizado para ${producto.nombre}: ${producto.stock} -> ${nuevoStock}`); // Para depuración
+                                }
+                            } catch (error) {
+                                console.error('Error en el bucle de actualización de stock:', error);
+                                alert('Error al actualizar stock: ' + error.message);
                                 return;
                             }
-
-                            if (producto) {
-                                console.log(`Stock actual de ${producto.nombre}: ${producto.stock}`); // Para depuración
-                                
-                                const nuevoStock = producto.stock - cantidad;
-                                
-                                // Verificar que no quede stock negativo
-                                if (nuevoStock < 0) {
-                                    alert(`No hay suficiente stock para ${producto.nombre}. Stock disponible: ${producto.stock}`);
-                                    return;
-                                }
-
-                                // Actualizar stock en Supabase
-                                const { error: updateError } = await supabaseClient
-                                    .from('productos')
-                                    .update({ stock: nuevoStock })
-                                    .eq('id', productoId);
-
-                                if (updateError) {
-                                    console.error('Error al actualizar stock:', updateError);
-                                    alert('Error al actualizar stock: ' + updateError.message);
-                                    return;
-                                }
-                                
-                                console.log(`Stock actualizado para ${producto.nombre}: ${producto.stock} -> ${nuevoStock}`); // Para depuración
-                            }
-                        } catch (error) {
-                            console.error('Error en el bucle de actualización de stock:', error);
-                            alert('Error al actualizar stock: ' + error.message);
-                            return;
+                        } else {
+                            console.log('Item no tiene valores válidos'); // Para depuración
                         }
+                    } else {
+                        console.log('Item no tiene select o input'); // Para depuración
                     }
                 }
 
