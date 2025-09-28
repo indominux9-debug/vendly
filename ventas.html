@@ -229,8 +229,8 @@
             console.log('Total a pagar:', total); // Para depuración
 
             try {
-                // Registrar venta en Supabase
-                const {  venta, error: error1 } = await supabaseClient
+                // Registrar venta en Supabase - CORREGIDO
+                const { data: venta, error: error1 } = await supabaseClient
                     .from('ventas')
                     .insert([{
                         usuario_id: userId,
@@ -301,7 +301,7 @@
                                         return;
                                     }
 
-                                    // Actualizar stock en Supabase
+                                    // Actualizar stock en Supabase - CORREGIDO
                                     const { error: updateError } = await supabaseClient
                                         .from('productos')
                                         .update({ stock: nuevoStock })
