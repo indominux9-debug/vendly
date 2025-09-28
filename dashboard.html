@@ -238,7 +238,7 @@
 
                 // Cargar ventas del día
                 const hoy = new Date().toISOString().split('T')[0];
-                const {  ventas, error: error2 } = await supabaseClient
+                const { data: ventas, error: error2 } = await supabaseClient
                     .from('ventas')
                     .select('*')
                     .eq('usuario_id', userId)
