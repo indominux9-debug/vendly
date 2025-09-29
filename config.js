@@ -5,5 +5,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Configuración de Telegram
-const TELEGRAM_TOKEN = 'TU_TOKEN_DE_TELEGRAM';
-const TELEGRAM_CHAT_ID = 'TU_CHAT_ID';
+const TELEGRAM_TOKEN = '7950188080:AAENYC8bWAn8mqHQv0nuX1DPsPg0Vf45-MQ';
+const TELEGRAM_CHAT_ID = '709834620';
+
