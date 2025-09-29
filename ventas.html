@@ -317,6 +317,8 @@
         }
 
         async function registrarVenta() {
+            console.log('=== INICIANDO REGISTRO DE VENTA ==='); // Para depuración
+            
             const metodoPago = document.getElementById('metodo_pago').value;
             
             // Validar campos requeridos para transferencias
@@ -335,9 +337,11 @@
             }
 
             const total = parseFloat(document.getElementById('total-amount').textContent);
+            console.log('Total a pagar:', total); // Para depuración
 
             try {
                 // Registrar venta en Supabase
+                console.log('Registrando venta en Supabase...'); // Para depuración
                 const { data: venta, error: error1 } = await supabaseClient
                     .from('ventas')
                     .insert([{
@@ -358,57 +362,91 @@
                     return;
                 }
 
-                console.log('Venta registrada:', venta); // Para depuración
+                console.log('Venta registrada exitosamente:', venta); // Para depuración
 
-                // Actualizar stock
+                // Actualizar stock - PASO POR PASO
+                console.log('=== INICIANDO ACTUALIZACIÓN DE STOCK ==='); // Para depuración
+                
                 const items = document.querySelectorAll('.producto-item');
-                for (const item of items) {
+                console.log('Número de items encontrados:', items.length); // Para depuración
+
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    console.log(`Procesando item ${i + 1}:`, item); // Para depuración
+                    
                     const select = item.querySelector('.producto-select');
                     const input = item.querySelector('.cantidad-input');
                     
-                    if (select && input && select.value && input.value) {
-                        const productoId = select.value;
-                        const cantidad = parseInt(input.value);
+                    console.log('Select:', select); // Para depuración
+                    console.log('Input:', input); // Para depuración
+                    
+                    if (select && input) {
+                        console.log('Select value:', select.value); // Para depuración
+                        console.log('Input value:', input.value); // Para depuración
                         
-                        try {
-                            // Obtener stock actual
-                            const {  producto, error: error2 } = await supabaseClient
-                                .from('productos')
-                                .select('stock, nombre')
-                                .eq('id', productoId)
-                                .single();
+                        if (select.value && input.value) {
+                            const productoId = select.value;
+                            const cantidad = parseInt(input.value);
+                            
+                            console.log(`Actualizando stock para producto ID: ${productoId}, cantidad: ${cantidad}`); // Para depuración
+                            
+                            try {
+                                // Obtener stock actual
+                                console.log('Obteniendo stock actual...'); // Para depuración
+                                const {  producto, error: error2 } = await supabaseClient
+                                    .from('productos')
+                                    .select('stock, nombre')
+                                    .eq('id', productoId)
+                                    .single();
 
-                            if (error2) {
-                                console.error('Error al obtener producto:', error2);
-                                throw new Error('Error al obtener producto: ' + error2.message);
-                            }
-
-                            if (producto) {
-                                const nuevoStock = producto.stock - cantidad;
-                                
-                                // Verificar que no quede stock negativo
-                                if (nuevoStock < 0) {
-                                    alert(`No hay suficiente stock para ${select.options[select.selectedIndex].text}. Stock disponible: ${producto.stock}`);
+                                if (error2) {
+                                    console.error('Error al obtener producto:', error2);
+                                    alert('Error al obtener producto: ' + error2.message);
                                     return;
                                 }
 
-                                const { error: updateError } = await supabaseClient
-                                    .from('productos')
-                                    .update({ stock: nuevoStock })
-                                    .eq('id', productoId);
+                                if (producto) {
+                                    console.log(`Stock actual de ${producto.nombre}: ${producto.stock}`); // Para depuración
+                                    
+                                    const nuevoStock = producto.stock - cantidad;
+                                    
+                                    // Verificar que no quede stock negativo
+                                    if (nuevoStock < 0) {
+                                        alert(`No hay suficiente stock para ${producto.nombre}. Stock disponible: ${producto.stock}`);
+                                        return;
+                                    }
 
-                                if (updateError) {
-                                    console.error('Error al actualizar stock:', updateError);
-                                    throw new Error('Error al actualizar stock: ' + updateError.message);
+                                    // Actualizar stock en Supabase
+                                    console.log('Actualizando stock en Supabase...'); // Para depuración
+                                    const { error: updateError } = await supabaseClient
+                                        .from('productos')
+                                        .update({ stock: nuevoStock })
+                                        .eq('id', productoId);
+
+                                    if (updateError) {
+                                        console.error('Error al actualizar stock:', updateError);
+                                        alert('Error al actualizar stock: ' + updateError.message);
+                                        return;
+                                    }
+                                    
+                                    console.log(`Stock actualizado para ${producto.nombre}: ${producto.stock} -> ${nuevoStock}`); // Para depuración
+                                } else {
+                                    console.log('Producto no encontrado:', productoId); // Para depuración
                                 }
+                            } catch (error) {
+                                console.error('Error en el bucle de actualización de stock:', error);
+                                alert('Error al actualizar stock: ' + error.message);
+                                return;
                             }
-                        } catch (error) {
-                            console.error('Error al actualizar stock:', error);
-                            alert('Error al actualizar stock: ' + error.message);
-                            return;
+                        } else {
+                            console.log(`Item ${i + 1} no tiene valores válidos`); // Para depuración
                         }
+                    } else {
+                        console.log(`Item ${i + 1} no tiene select o input`); // Para depuración
                     }
                 }
+
+                console.log('=== ACTUALIZACIÓN DE STOCK COMPLETADA ==='); // Para depuración
 
                 // Enviar notificación a Telegram
                 const clienteNombre = document.getElementById('cliente_nombre').value || 'Efectivo';
@@ -433,6 +471,7 @@
                 alert('Venta registrada exitosamente!\nTotal: $' + total.toFixed(2));
                 location.href = 'dashboard.html';
             } catch (error) {
+                console.error('Error general en registrarVenta:', error);
                 alert('Error al registrar venta: ' + error.message);
             }
         }
