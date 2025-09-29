@@ -7,33 +7,50 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
             margin: 0;
             padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
         .container {
             max-width: 400px;
-            margin: 50px auto;
+            width: 100%;
             background: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        h2 {
+
+        .form-title {
             text-align: center;
             color: #333;
             margin-bottom: 20px;
+            font-size: 24px;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         label {
             display: block;
             margin-bottom: 5px;
             color: #555;
+            font-size: 14px;
         }
+
         input {
             width: 100%;
             padding: 10px;
@@ -41,6 +58,7 @@
             border-radius: 5px;
             font-size: 16px;
         }
+
         .btn {
             width: 100%;
             padding: 12px;
@@ -48,23 +66,80 @@
             color: white;
             border: none;
             border-radius: 5px;
-            font-size: 16px;
             cursor: pointer;
+            margin: 5px 0;
+            font-size: 16px;
+            text-align: center;
         }
+
         .btn:hover {
             background: #0056b3;
         }
+
         .btn-secondary {
             background: #6c757d;
         }
+
         .btn-secondary:hover {
             background: #545b62;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+
+            .form-title {
+                font-size: 20px;
+            }
+
+            .form-group {
+                margin-bottom: 10px;
+            }
+
+            input {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            .btn {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+                margin: 5px;
+            }
+
+            .form-title {
+                font-size: 18px;
+            }
+
+            .form-group {
+                margin-bottom: 10px;
+            }
+
+            input {
+                font-size: 12px;
+                padding: 6px;
+            }
+
+            .btn {
+                padding: 8px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Login</h2>
+        <h2 class="form-title">Login</h2>
+        
         <form id="loginForm">
             <div class="form-group">
                 <label>Usuario:</label>
@@ -87,8 +162,6 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            console.log('Intentando login con:', username);
-            
             try {
                 // Consultar usuario en Supabase
                 const { data, error } = await supabaseClient
@@ -99,7 +172,7 @@
 
                 if (error) {
                     console.error('Error de Supabase:', error);
-                    alert('Error de conexión con la base de datos: ' + error.message);
+                    alert('Error de conexión con la base de datos');
                     return;
                 }
 
@@ -119,17 +192,7 @@
                 localStorage.setItem('userRole', data.rol || 'dependiente');
                 
                 alert('Login exitoso!');
-                
-                // Redirigir según el rol del usuario
-                const userRole = data.rol || 'dependiente';
-                
-                if (userRole === 'administrador' || userRole === 'admin') {
-                    // Si es administrador, ir al dashboard
-                    location.href = 'dashboard.html';
-                } else {
-                    // Si es dependiente, ir a registrar venta
-                    location.href = 'ventas.html';
-                }
+                location.href = 'dashboard.html';
                 
             } catch (error) {
                 console.error('Error en login:', error);
