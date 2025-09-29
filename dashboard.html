@@ -204,7 +204,7 @@
             font-size: 16px;
         }
 
-        /* Media Queries - Texto más grande en móviles */
+        /* Media Queries - Texto ajustado en móviles */
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -224,7 +224,7 @@
             .btn {
                 min-width: 100%;
                 padding: 14px;
-                font-size: 18px;
+                font-size: 16px;
                 margin: 5px 0;
             }
 
@@ -238,7 +238,7 @@
             }
 
             .stat-card h3 {
-                font-size: 18px;
+                font-size: 16px;
             }
 
             .stat-card p {
@@ -260,12 +260,13 @@
 
             th, td {
                 padding: 10px;
-                font-size: 16px;
+                font-size: 14px;
             }
 
             .action-buttons .btn {
-                padding: 8px 12px;
-                font-size: 14px;
+                padding: 6px 10px;
+                font-size: 12px;
+                min-width: 60px;
             }
 
             .add-product-section {
@@ -282,12 +283,12 @@
             }
 
             .loading {
-                font-size: 18px;
+                font-size: 16px;
                 padding: 15px;
             }
 
             .error {
-                font-size: 16px;
+                font-size: 14px;
                 padding: 15px;
             }
         }
@@ -304,7 +305,7 @@
 
             .btn {
                 padding: 12px;
-                font-size: 16px;
+                font-size: 14px;
             }
 
             .stat-card {
@@ -312,7 +313,7 @@
             }
 
             .stat-card h3 {
-                font-size: 16px;
+                font-size: 14px;
             }
 
             .stat-card p {
@@ -323,47 +324,52 @@
                 font-size: 18px;
             }
 
-            th, td {
-                padding: 8px;
-                font-size: 14px;
+            table {
+                min-width: 300px;
             }
 
-            .action-buttons .btn {
-                padding: 6px 10px;
+            th, td {
+                padding: 8px;
                 font-size: 12px;
             }
 
+            .action-buttons .btn {
+                padding: 5px 8px;
+                font-size: 10px;
+                min-width: 50px;
+            }
+
             .form-group label {
-                font-size: 16px;
+                font-size: 14px;
             }
 
             .form-group input {
-                font-size: 16px;
+                font-size: 14px;
                 padding: 8px;
             }
 
             .loading {
-                font-size: 16px;
+                font-size: 14px;
             }
 
             .error {
-                font-size: 14px;
+                font-size: 12px;
             }
         }
 
-        /* Texto aún más grande para pantallas muy pequeñas */
+        /* Texto aún más pequeño para pantallas muy pequeñas */
         @media (max-width: 360px) {
             .header h2 {
                 font-size: 18px;
             }
 
             .btn {
-                font-size: 14px;
+                font-size: 12px;
                 padding: 10px;
             }
 
             .stat-card h3 {
-                font-size: 14px;
+                font-size: 12px;
             }
 
             .stat-card p {
@@ -375,16 +381,22 @@
             }
 
             th, td {
-                font-size: 12px;
+                font-size: 10px;
                 padding: 6px;
             }
 
+            .action-buttons .btn {
+                padding: 4px 6px;
+                font-size: 8px;
+                min-width: 40px;
+            }
+
             .form-group label {
-                font-size: 14px;
+                font-size: 12px;
             }
 
             .form-group input {
-                font-size: 14px;
+                font-size: 12px;
                 padding: 6px;
             }
         }
@@ -475,7 +487,7 @@
         async function cargarDatos() {
             try {
                 // Cargar inventario
-                const { data: productos, error: error1 } = await supabaseClient
+                const {  productos, error: error1 } = await supabaseClient
                     .from('productos')
                     .select('*')
                     .order('nombre', { ascending: true });
@@ -502,7 +514,7 @@
 
                 // Cargar ventas del día
                 const hoy = new Date().toISOString().split('T')[0];
-                const { data: ventas, error: error2 } = await supabaseClient
+                const {  ventas, error: error2 } = await supabaseClient
                     .from('ventas')
                     .select('*')
                     .eq('usuario_id', userId)
@@ -662,13 +674,4 @@
 
         function cerrarSesion() {
             localStorage.removeItem('userId');
-            localStorage.removeItem('userName');
-            localStorage.removeItem('userRole');
-            location.href = 'index.html';
-        }
-
-        // Cargar datos cuando se carga la página
-        document.addEventListener('DOMContentLoaded', cargarDatos);
-    </script>
-</body>
-</html>
+            localStorage.removeItem
