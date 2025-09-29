@@ -7,28 +7,47 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
             margin: 0;
             padding: 20px;
+            min-height: 100vh;
         }
+
         .container {
-            max-width: 600px;
+            max-width: 100%;
             margin: 0 auto;
             background: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
+
+        .form-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         label {
             display: block;
             margin-bottom: 5px;
             color: #555;
+            font-size: 14px;
         }
+
         input, select {
             width: 100%;
             padding: 10px;
@@ -36,6 +55,7 @@
             border-radius: 5px;
             font-size: 16px;
         }
+
         .btn {
             padding: 12px 20px;
             background: #007bff;
@@ -44,16 +64,23 @@
             border-radius: 5px;
             cursor: pointer;
             margin: 5px;
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
         }
+
         .btn:hover {
             background: #0056b3;
         }
+
         .btn-secondary {
             background: #6c757d;
         }
+
         .btn-secondary:hover {
             background: #545b62;
         }
+
         .total-display {
             background: #d4edda;
             padding: 15px;
@@ -64,9 +91,11 @@
             font-weight: bold;
             color: #155724;
         }
+
         .hidden {
             display: none;
         }
+
         .producto-item {
             border: 1px solid #eee;
             padding: 15px;
@@ -74,20 +103,102 @@
             border-radius: 5px;
             background: #f9f9f9;
         }
-        .error {
-            text-align: center;
-            padding: 20px;
-            color: #dc3545;
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: 4px;
-            margin: 10px 0;
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons .btn {
+            padding: 5px 10px;
+            font-size: 12px;
+            min-width: 60px;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+
+            .form-title {
+                font-size: 20px;
+            }
+
+            .form-group {
+                margin-bottom: 10px;
+            }
+
+            input, select {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            .btn {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .total-display {
+                font-size: 16px;
+            }
+
+            .producto-item {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            .action-buttons .btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+                margin: 5px;
+            }
+
+            .form-title {
+                font-size: 18px;
+            }
+
+            .form-group {
+                margin-bottom: 10px;
+            }
+
+            input, select {
+                font-size: 12px;
+                padding: 6px;
+            }
+
+            .btn {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .total-display {
+                font-size: 14px;
+            }
+
+            .producto-item {
+                padding: 8px;
+                margin-bottom: 8px;
+            }
+
+            .action-buttons .btn {
+                padding: 5px 8px;
+                font-size: 10px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Registrar Venta</h2>
+        <h2 class="form-title">Registrar Venta</h2>
         
         <form id="ventaForm">
             <div class="form-group">
@@ -145,7 +256,9 @@
                         <label>Cantidad:</label>
                         <input type="number" class="cantidad-input" min="1" value="1" onchange="calcularTotal()">
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="removeProducto(this)">Eliminar</button>
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="removeProducto(this)">Eliminar</button>
+                    </div>
                 </div>
             </div>
 
@@ -158,8 +271,6 @@
             <button type="submit" class="btn">Registrar Venta</button>
             <button type="button" class="btn btn-secondary" onclick="location.href='dashboard.html'">Volver al Dashboard</button>
         </form>
-        
-        <div id="venta-error" style="display: none;"></div>
     </div>
 
     <script>
@@ -206,8 +317,6 @@
         }
 
         async function registrarVenta() {
-            console.log('Iniciando registro de venta...'); // Para depuración
-            
             const metodoPago = document.getElementById('metodo_pago').value;
             
             // Validar campos requeridos para transferencias
@@ -226,10 +335,9 @@
             }
 
             const total = parseFloat(document.getElementById('total-amount').textContent);
-            console.log('Total a pagar:', total); // Para depuración
 
             try {
-                // Registrar venta en Supabase - CORREGIDO
+                // Registrar venta en Supabase
                 const { data: venta, error: error1 } = await supabaseClient
                     .from('ventas')
                     .insert([{
@@ -252,79 +360,53 @@
 
                 console.log('Venta registrada:', venta); // Para depuración
 
-                // Actualizar stock - CON DEPURACIÓN
-                console.log('Buscando items de producto...'); // Para depuración
+                // Actualizar stock
                 const items = document.querySelectorAll('.producto-item');
-                console.log('Número de items encontrados:', items.length); // Para depuración
-
                 for (const item of items) {
-                    console.log('Procesando item:', item); // Para depuración
-                    
                     const select = item.querySelector('.producto-select');
                     const input = item.querySelector('.cantidad-input');
                     
-                    console.log('Select encontrado:', select); // Para depuración
-                    console.log('Input encontrado:', input); // Para depuración
-                    
-                    if (select && input) {
-                        console.log('Select value:', select.value); // Para depuración
-                        console.log('Input value:', input.value); // Para depuración
+                    if (select && input && select.value && input.value) {
+                        const productoId = select.value;
+                        const cantidad = parseInt(input.value);
                         
-                        if (select.value && input.value) {
-                            const productoId = select.value;
-                            const cantidad = parseInt(input.value);
-                            
-                            console.log(`Actualizando stock para producto ID: ${productoId}, cantidad: ${cantidad}`); // Para depuración
-                            
-                            try {
-                                // Obtener stock actual
-                                const {  producto, error: error2 } = await supabaseClient
-                                    .from('productos')
-                                    .select('stock, nombre')
-                                    .eq('id', productoId)
-                                    .single();
+                        try {
+                            // Obtener stock actual
+                            const {  producto, error: error2 } = await supabaseClient
+                                .from('productos')
+                                .select('stock, nombre')
+                                .eq('id', productoId)
+                                .single();
 
-                                if (error2) {
-                                    console.error('Error al obtener producto:', error2);
-                                    alert('Error al obtener producto: ' + error2.message);
+                            if (error2) {
+                                console.error('Error al obtener producto:', error2);
+                                throw new Error('Error al obtener producto: ' + error2.message);
+                            }
+
+                            if (producto) {
+                                const nuevoStock = producto.stock - cantidad;
+                                
+                                // Verificar que no quede stock negativo
+                                if (nuevoStock < 0) {
+                                    alert(`No hay suficiente stock para ${select.options[select.selectedIndex].text}. Stock disponible: ${producto.stock}`);
                                     return;
                                 }
 
-                                if (producto) {
-                                    console.log(`Stock actual de ${producto.nombre}: ${producto.stock}`); // Para depuración
-                                    
-                                    const nuevoStock = producto.stock - cantidad;
-                                    
-                                    // Verificar que no quede stock negativo
-                                    if (nuevoStock < 0) {
-                                        alert(`No hay suficiente stock para ${producto.nombre}. Stock disponible: ${producto.stock}`);
-                                        return;
-                                    }
+                                const { error: updateError } = await supabaseClient
+                                    .from('productos')
+                                    .update({ stock: nuevoStock })
+                                    .eq('id', productoId);
 
-                                    // Actualizar stock en Supabase - CORREGIDO
-                                    const { error: updateError } = await supabaseClient
-                                        .from('productos')
-                                        .update({ stock: nuevoStock })
-                                        .eq('id', productoId);
-
-                                    if (updateError) {
-                                        console.error('Error al actualizar stock:', updateError);
-                                        alert('Error al actualizar stock: ' + updateError.message);
-                                        return;
-                                    }
-                                    
-                                    console.log(`Stock actualizado para ${producto.nombre}: ${producto.stock} -> ${nuevoStock}`); // Para depuración
+                                if (updateError) {
+                                    console.error('Error al actualizar stock:', updateError);
+                                    throw new Error('Error al actualizar stock: ' + updateError.message);
                                 }
-                            } catch (error) {
-                                console.error('Error en el bucle de actualización de stock:', error);
-                                alert('Error al actualizar stock: ' + error.message);
-                                return;
                             }
-                        } else {
-                            console.log('Item no tiene valores válidos'); // Para depuración
+                        } catch (error) {
+                            console.error('Error al actualizar stock:', error);
+                            alert('Error al actualizar stock: ' + error.message);
+                            return;
                         }
-                    } else {
-                        console.log('Item no tiene select o input'); // Para depuración
                     }
                 }
 
@@ -351,7 +433,6 @@
                 alert('Venta registrada exitosamente!\nTotal: $' + total.toFixed(2));
                 location.href = 'dashboard.html';
             } catch (error) {
-                console.error('Error general en registrarVenta:', error);
                 alert('Error al registrar venta: ' + error.message);
             }
         }
@@ -382,7 +463,9 @@
                     <label>Cantidad:</label>
                     <input type="number" class="cantidad-input" min="1" value="1" onchange="calcularTotal()">
                 </div>
-                <button type="button" class="btn btn-secondary" onclick="removeProducto(this)">Eliminar</button>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="removeProducto(this)">Eliminar</button>
+                </div>
             `;
             container.appendChild(newItem);
             cargarProductos();
@@ -390,7 +473,7 @@
         }
 
         function removeProducto(button) {
-            const item = button.parentElement;
+            const item = button.parentElement.parentElement; // Porque ahora está dentro de .action-buttons
             if (document.querySelectorAll('.producto-item').length > 1) {
                 item.remove();
                 calcularTotal();
