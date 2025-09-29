@@ -393,7 +393,7 @@
                             try {
                                 // Obtener stock actual
                                 console.log('Obteniendo stock actual...'); // Para depuración
-                                const {  producto, error: error2 } = await supabaseClient
+                                const { data: producto, error: error2 } = await supabaseClient
                                     .from('productos')
                                     .select('stock, nombre')
                                     .eq('id', productoId)
@@ -432,6 +432,7 @@
                                     console.log(`Stock actualizado para ${producto.nombre}: ${producto.stock} -> ${nuevoStock}`); // Para depuración
                                 } else {
                                     console.log('Producto no encontrado:', productoId); // Para depuración
+                                    alert('Producto no encontrado: ' + productoId);
                                 }
                             } catch (error) {
                                 console.error('Error en el bucle de actualización de stock:', error);
