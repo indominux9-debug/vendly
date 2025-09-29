@@ -41,21 +41,21 @@
 
         .header h2 {
             color: #333;
-            margin: 0;
             font-size: 24px;
+            margin: 0;
         }
 
         .btn {
-            padding: 12px 16px;
+            padding: 10px 15px;
             background: #007bff;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
             text-decoration: none;
             text-align: center;
-            font-size: 16px;
-            min-width: 120px;
+            font-size: 14px;
+            min-width: 100px;
             flex: 1 1 auto;
         }
 
@@ -97,18 +97,18 @@
         .stat-card h3 {
             margin: 0;
             color: #666;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .stat-card p {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: #007bff;
             margin: 10px 0 0 0;
         }
 
         .section-title {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 600;
             color: #333;
             margin: 20px 0 10px 0;
@@ -153,9 +153,9 @@
         }
 
         .action-buttons .btn {
-            padding: 6px 12px;
-            font-size: 14px;
-            min-width: 70px;
+            padding: 5px 10px;
+            font-size: 12px;
+            min-width: 60px;
         }
 
         /* Formulario de agregar producto */
@@ -174,15 +174,15 @@
             display: block;
             margin-bottom: 5px;
             color: #555;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 10px;
+            padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         /* Carga y errores */
@@ -190,7 +190,7 @@
             text-align: center;
             padding: 20px;
             color: #666;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .error {
@@ -201,10 +201,10 @@
             border: 1px solid #f5c6cb;
             border-radius: 4px;
             margin: 10px 0;
-            font-size: 16px;
+            font-size: 14px;
         }
 
-        /* Media Queries - Texto ajustado en móviles */
+        /* Media Queries */
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -216,42 +216,32 @@
                 align-items: stretch;
             }
 
-            .header h2 {
-                font-size: 22px;
-                text-align: center;
-            }
-
             .btn {
                 min-width: 100%;
-                padding: 14px;
+                padding: 12px;
                 font-size: 16px;
-                margin: 5px 0;
             }
 
             .stats {
                 grid-template-columns: 1fr;
-                gap: 12px;
+                gap: 10px;
             }
 
             .stat-card {
                 padding: 12px;
-            }
-
-            .stat-card h3 {
-                font-size: 16px;
+                font-size: 14px;
             }
 
             .stat-card p {
-                font-size: 22px;
+                font-size: 18px;
             }
 
             .section-title {
-                font-size: 20px;
-                text-align: center;
+                font-size: 18px;
             }
 
             .table-container {
-                margin-top: 12px;
+                margin-top: 10px;
             }
 
             table {
@@ -259,44 +249,28 @@
             }
 
             th, td {
-                padding: 10px;
+                padding: 8px;
                 font-size: 14px;
             }
 
             .action-buttons .btn {
-                padding: 6px 10px;
-                font-size: 12px;
-                min-width: 60px;
+                padding: 8px 12px;
+                font-size: 14px;
             }
 
             .add-product-section {
-                padding: 12px;
-            }
-
-            .form-group label {
-                font-size: 16px;
+                padding: 15px;
             }
 
             .form-group input {
-                font-size: 16px;
-                padding: 10px;
-            }
-
-            .loading {
-                font-size: 16px;
-                padding: 15px;
-            }
-
-            .error {
                 font-size: 14px;
-                padding: 15px;
             }
         }
 
         @media (max-width: 480px) {
             .container {
-                padding: 12px;
-                margin: 8px;
+                padding: 10px;
+                margin: 5px;
             }
 
             .header h2 {
@@ -304,24 +278,25 @@
             }
 
             .btn {
-                padding: 12px;
+                padding: 10px;
                 font-size: 14px;
             }
 
             .stat-card {
                 padding: 10px;
-            }
-
-            .stat-card h3 {
-                font-size: 14px;
+                font-size: 12px;
             }
 
             .stat-card p {
-                font-size: 20px;
+                font-size: 16px;
             }
 
             .section-title {
-                font-size: 18px;
+                font-size: 16px;
+            }
+
+            .table-container {
+                margin-top: 5px;
             }
 
             table {
@@ -329,75 +304,21 @@
             }
 
             th, td {
-                padding: 8px;
+                padding: 6px;
                 font-size: 12px;
             }
 
             .action-buttons .btn {
-                padding: 5px 8px;
-                font-size: 10px;
-                min-width: 50px;
-            }
-
-            .form-group label {
-                font-size: 14px;
-            }
-
-            .form-group input {
-                font-size: 14px;
-                padding: 8px;
-            }
-
-            .loading {
-                font-size: 14px;
-            }
-
-            .error {
+                padding: 6px 10px;
                 font-size: 12px;
             }
-        }
 
-        /* Texto aún más pequeño para pantallas muy pequeñas */
-        @media (max-width: 360px) {
-            .header h2 {
-                font-size: 18px;
-            }
-
-            .btn {
-                font-size: 12px;
+            .add-product-section {
                 padding: 10px;
             }
 
-            .stat-card h3 {
-                font-size: 12px;
-            }
-
-            .stat-card p {
-                font-size: 18px;
-            }
-
-            .section-title {
-                font-size: 16px;
-            }
-
-            th, td {
-                font-size: 10px;
-                padding: 6px;
-            }
-
-            .action-buttons .btn {
-                padding: 4px 6px;
-                font-size: 8px;
-                min-width: 40px;
-            }
-
-            .form-group label {
-                font-size: 12px;
-            }
-
             .form-group input {
                 font-size: 12px;
-                padding: 6px;
             }
         }
     </style>
@@ -487,7 +408,7 @@
         async function cargarDatos() {
             try {
                 // Cargar inventario
-                const {  productos, error: error1 } = await supabaseClient
+                const { data: productos, error: error1 } = await supabaseClient
                     .from('productos')
                     .select('*')
                     .order('nombre', { ascending: true });
@@ -514,7 +435,7 @@
 
                 // Cargar ventas del día
                 const hoy = new Date().toISOString().split('T')[0];
-                const {  ventas, error: error2 } = await supabaseClient
+                const { data: ventas, error: error2 } = await supabaseClient
                     .from('ventas')
                     .select('*')
                     .eq('usuario_id', userId)
@@ -674,4 +595,13 @@
 
         function cerrarSesion() {
             localStorage.removeItem('userId');
-            localStorage.removeItem
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userRole');
+            location.href = 'index.html';
+        }
+
+        // Cargar datos cuando se carga la página
+        document.addEventListener('DOMContentLoaded', cargarDatos);
+    </script>
+</body>
+</html>
