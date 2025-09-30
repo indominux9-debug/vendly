@@ -486,21 +486,21 @@
         async function cargarDatos() {
             console.log('=== INICIANDO CARGA DE DATOS ==='); // Para depuración
             
-            try {
-                // Cargar inventario - CORREGIDO
-                console.log('Cargando inventario...'); // Para depuración
-const { data: productos, error: error1 } = await supabaseClient
-    .from('productos')
-    .select('*')
-    .order('nombre', { ascending: true });
-                
-                if (error1) {
-                    console.error('Error al cargar productos:', error1);
-                    document.getElementById('inventario-loading').style.display = 'none';
-                    document.getElementById('inventario-error').innerHTML = `<div class="error">Error al cargar productos: ${error1.message}</div>`;
-                    document.getElementById('inventario-error').style.display = 'block';
-                    return;
-                }
+            // Cargar inventario - CORREGIDO
+try {
+    console.log('Cargando inventario...'); // Para depuración
+    const { data: productos, error: error1 } = await supabaseClient
+        .from('productos')
+        .select('*')
+        .order('nombre', { ascending: true });
+
+    if (error1) {
+        console.error('Error al cargar productos:', error1);
+        document.getElementById('inventario-loading').style.display = 'none';
+        document.getElementById('inventario-error').innerHTML = `<div class="error">Error al cargar productos: ${error1.message}</div>`;
+        document.getElementById('inventario-error').style.display = 'block';
+        return;
+    }
 
                 console.log('Productos obtenidos:', productos); // Para depuración
                 console.log('Tipo de productos:', typeof productos); // Para depuración
@@ -517,6 +517,12 @@ const { data: productos, error: error1 } = await supabaseClient
                     document.getElementById('inventario-table').style.display = 'block';
                     document.getElementById('inventory-body').innerHTML = `<tr><td colspan="4" style="text-align: center;">No hay productos en inventario</td></tr>`;
                 }
+    } catch (error) {
+    console.error('Error general en cargar inventario:', error);
+    document.getElementById('inventario-loading').style.display = 'none';
+    document.getElementById('inventario-error').innerHTML = `<div class="error">Error al cargar inventario: ${error.message}</div>`;
+    document.getElementById('inventario-error').style.display = 'block';
+}
 
                 // Cargar ventas del día - CORREGIDO Y SEGURO
 try {
@@ -736,6 +742,7 @@ try {
 </script>
 </body>
 </html>
+
 
 
 
