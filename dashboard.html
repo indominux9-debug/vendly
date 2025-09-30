@@ -574,28 +574,36 @@
     </div>
 </div>
 
-<!-- Ventas del día seleccionado -->
+<!-- Estadísticas del día seleccionado -->
 <div class="ventas-dia-section">
-    <h3 class="section-title">Ventas del Día Seleccionado</h3>
+    <h3 class="section-title">Estadísticas del Día Seleccionado</h3>
     <div id="ventas-dia-loading" class="loading" style="display: none;">
-        Cargando ventas...
+        Cargando estadísticas...
     </div>
-    <div id="ventas-dia-table" style="display: none;" class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Hora</th>
-                    <th>Cliente</th>
-                    <th>Método</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody id="ventas-dia-body">
-                <!-- Ventas se cargarán aquí -->
-            </tbody>
-        </table>
+    <div id="ventas-dia-stats" style="display: none;">
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Vendido</h3>
+                <p id="dia-total-vendido">$0.00</p>
+            </div>
+            <div class="stat-card">
+                <h3>Efectivo</h3>
+                <p id="dia-total-efectivo">$0.00</p>
+            </div>
+            <div class="stat-card">
+                <h3>Transferencia</h3>
+                <p id="dia-total-transferencia">$0.00</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Ventas</h3>
+                <p id="dia-total-ventas">0</p>
+            </div>
+        </div>
     </div>
     <div id="ventas-dia-error" style="display: none;"></div>
+    <div id="ventas-dia-no-data" style="display: none; text-align: center; padding: 20px; color: #666;">
+        No hay ventas para este día
+    </div>
 </div>
         
         <h3 class="section-title">Inventario</h3>
@@ -1056,22 +1064,23 @@ async function cargarVentasDelMes(mes, año) {
     }
 }
 
-// Cargar ventas del día seleccionado
+// Cargar estadísticas del día seleccionado
 async function cargarVentasDelDia(fecha) {
-    console.log('Cargando ventas para fecha:', fecha); // Para depuración
+    console.log('Cargando estadísticas para fecha:', fecha); // Para depuración
     
     const ventasDiaLoading = document.getElementById('ventas-dia-loading');
-    const ventasDiaTable = document.getElementById('ventas-dia-table');
+    const ventasDiaStats = document.getElementById('ventas-dia-stats');
     const ventasDiaError = document.getElementById('ventas-dia-error');
-    const ventasDiaBody = document.getElementById('ventas-dia-body');
+    const ventasDiaNoData = document.getElementById('ventas-dia-no-data');
     
     // Mostrar loading
     ventasDiaLoading.style.display = 'block';
-    ventasDiaTable.style.display = 'none';
+    ventasDiaStats.style.display = 'none';
     ventasDiaError.style.display = 'none';
+    ventasDiaNoData.style.display = 'none';
     
     try {
-        const { data: ventas, error } = await supabaseClient
+        const {  ventas, error } = await supabaseClient
             .from('ventas')
             .select('*')
             .eq('usuario_id', userId)
@@ -1080,9 +1089,9 @@ async function cargarVentasDelDia(fecha) {
             .order('creado_en', { ascending: true });
         
         if (error) {
-            console.error('Error al cargar ventas del día:', error);
+            console.error('Error al cargar estadísticas del día:', error);
             ventasDiaLoading.style.display = 'none';
-            ventasDiaError.innerHTML = `<div class="error">Error al cargar ventas: ${error.message}</div>`;
+            ventasDiaError.innerHTML = `<div class="error">Error al cargar estadísticas: ${error.message}</div>`;
             ventasDiaError.style.display = 'block';
             return;
         }
@@ -1092,50 +1101,45 @@ async function cargarVentasDelDia(fecha) {
         ventasDiaLoading.style.display = 'none';
         
         if (ventas && ventas.length > 0) {
-            ventasDiaTable.style.display = 'block';
-            mostrarVentasDelDia(ventas);
+            mostrarEstadisticasDelDia(ventas);
+            ventasDiaStats.style.display = 'block';
         } else {
-            ventasDiaTable.style.display = 'block';
-            ventasDiaBody.innerHTML = `<tr><td colspan="4" style="text-align: center;">No hay ventas para este día</td></tr>`;
+            ventasDiaNoData.style.display = 'block';
         }
         
     } catch (error) {
-        console.error('Error general al cargar ventas del día:', error);
+        console.error('Error general al cargar estadísticas del día:', error);
         ventasDiaLoading.style.display = 'none';
-        ventasDiaError.innerHTML = `<div class="error">Error al cargar ventas: ${error.message}</div>`;
+        ventasDiaError.innerHTML = `<div class="error">Error al cargar estadísticas: ${error.message}</div>`;
         ventasDiaError.style.display = 'block';
     }
 }
 
-// Mostrar ventas del día seleccionado
-function mostrarVentasDelDia(ventas) {
-    const tbody = document.getElementById('ventas-dia-body');
-    tbody.innerHTML = '';
-    
+// Mostrar estadísticas del día seleccionado
+function mostrarEstadisticasDelDia(ventas) {
+    let totalVendido = 0;
+    let totalEfectivo = 0;
+    let totalTransferencia = 0;
+
+    console.log('Calculando estadísticas para', ventas.length, 'ventas del día'); // Para depuración
+
     ventas.forEach(venta => {
-        const row = document.createElement('tr');
+        console.log('Venta procesada:', venta); // Para depuración
+        totalVendido += parseFloat(venta.total);
         
-        // Extraer hora de la fecha
-        const hora = new Date(venta.creado_en).toLocaleTimeString('es-ES', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-        
-        // Nombre del cliente
-        const nombreCliente = venta.cliente_nombre || 'Efectivo';
-        const apellidoCliente = venta.cliente_apellido || '';
-        const clienteCompleto = `${nombreCliente} ${apellidoCliente}`.trim();
-        
-        row.innerHTML = `
-            <td>${hora}</td>
-            <td>${clienteCompleto}</td>
-            <td>${venta.metodo_pago}</td>
-            <td>$${parseFloat(venta.total).toFixed(2)}</td>
-        `;
-        
-        tbody.appendChild(row);
+        if (venta.metodo_pago === 'efectivo') {
+            totalEfectivo += parseFloat(venta.total);
+        } else {
+            totalTransferencia += parseFloat(venta.total);
+        }
     });
+
+    document.getElementById('dia-total-vendido').textContent = totalVendido.toFixed(2);
+    document.getElementById('dia-total-efectivo').textContent = totalEfectivo.toFixed(2);
+    document.getElementById('dia-total-transferencia').textContent = totalTransferencia.toFixed(2);
+    document.getElementById('dia-total-ventas').textContent = ventas.length;
 }
 </script>
 </body>
 </html>
+
