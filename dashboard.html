@@ -699,8 +699,27 @@ try {
         // Cargar datos cuando se carga la página
         document.addEventListener('DOMContentLoaded', cargarDatos);
     </script>
+    <script>
+    // Prueba de conexión (borrar después de probar)
+    console.log('Supabase Client:', supabaseClient);
+    
+    if (!supabaseClient) {
+        console.error('supabaseClient no está definido');
+        alert('Error: supabaseClient no está definido');
+    } else {
+        supabaseClient.from('productos').select('*').then(result => {
+            console.log('Prueba de conexión a productos:', result);
+            if (result.error) {
+                console.error('Error en prueba de productos:', result.error);
+            } else {
+                console.log('Productos encontrados:', result.data);
+            }
+        });
+    }
+</script>
 </body>
 </html>
+
 
 
 
