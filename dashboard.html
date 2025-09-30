@@ -638,6 +638,12 @@
     </div>
 
     <script>
+// Variables para el calendario
+let fechaSeleccionada = null;
+let mesActual = new Date().getMonth();
+let añoActual = new Date().getFullYear();
+let ventasPorDia = {}; // Cache de ventas por día
+        
         // Verificar sesión
         const userId = localStorage.getItem('userId');
         const userName = localStorage.getItem('userName');
@@ -907,9 +913,233 @@ try {
             }
         });
     }
+        // Inicializar calendario
+document.addEventListener('DOMContentLoaded', function() {
+    cargarDatos();
+    inicializarCalendario();
+});
+
+// Inicializar calendario
+function inicializarCalendario() {
+    mostrarMes(mesActual, añoActual);
+}
+
+// Mostrar mes en el calendario
+function mostrarMes(mes, año) {
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    
+    document.getElementById('mes-actual').textContent = `${meses[mes]} ${año}`;
+    
+    const primerDia = new Date(año, mes, 1);
+    const ultimoDia = new Date(año, mes + 1, 0);
+    const diasEnMes = ultimoDia.getDate();
+    const primerDiaSemana = primerDia.getDay();
+    
+    const calendarGrid = document.getElementById('calendar-grid');
+    
+    // Limpiar calendario (excepto encabezados)
+    while (calendarGrid.children.length > 7) {
+        calendarGrid.removeChild(calendarGrid.lastChild);
+    }
+    
+    // Días del mes anterior
+    const ultimoDiaMesAnterior = new Date(año, mes, 0).getDate();
+    for (let i = primerDiaSemana - 1; i >= 0; i--) {
+        const dia = document.createElement('div');
+        dia.className = 'calendar-day other-month';
+        dia.textContent = ultimoDiaMesAnterior - i;
+        calendarGrid.appendChild(dia);
+    }
+    
+    // Días del mes actual
+    for (let i = 1; i <= diasEnMes; i++) {
+        const dia = document.createElement('div');
+        dia.className = 'calendar-day';
+        dia.textContent = i;
+        dia.dataset.fecha = `${año}-${String(mes + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        
+        // Marcar día actual
+        const hoy = new Date();
+        if (año === hoy.getFullYear() && mes === hoy.getMonth() && i === hoy.getDate()) {
+            dia.style.fontWeight = 'bold';
+            dia.style.border = '2px solid #007bff';
+        }
+        
+        // Agregar evento de clic
+        dia.addEventListener('click', function() {
+            seleccionarDia(this);
+        });
+        
+        calendarGrid.appendChild(dia);
+    }
+    
+    // Cargar ventas del mes
+    cargarVentasDelMes(mes, año);
+}
+
+// Mes anterior
+function mesAnterior() {
+    mesActual--;
+    if (mesActual < 0) {
+        mesActual = 11;
+        añoActual--;
+    }
+    mostrarMes(mesActual, añoActual);
+}
+
+// Mes siguiente
+function mesSiguiente() {
+    mesActual++;
+    if (mesActual > 11) {
+        mesActual = 0;
+        añoActual++;
+    }
+    mostrarMes(mesActual, añoActual);
+}
+
+// Seleccionar día
+function seleccionarDia(elemento) {
+    // Remover selección anterior
+    const dias = document.querySelectorAll('.calendar-day');
+    dias.forEach(dia => dia.classList.remove('selected'));
+    
+    // Agregar selección
+    elemento.classList.add('selected');
+    
+    // Obtener fecha seleccionada
+    const fecha = elemento.dataset.fecha;
+    if (fecha) {
+        fechaSeleccionada = new Date(fecha);
+        cargarVentasDelDia(fecha);
+    }
+}
+
+// Cargar ventas del mes (para marcar días con ventas)
+async function cargarVentasDelMes(mes, año) {
+    try {
+        const startDate = `${año}-${String(mes + 1).padStart(2, '0')}-01`;
+        const endDate = `${año}-${String(mes + 1).padStart(2, '0')}-${new Date(año, mes + 1, 0).getDate()}`;
+        
+        const { data: ventas, error } = await supabaseClient
+            .from('ventas')
+            .select('*')
+            .eq('usuario_id', userId)
+            .gte('creado_en', `${startDate}T00:00:00`)
+            .lte('creado_en', `${endDate}T23:59:59`);
+        
+        if (error) {
+            console.error('Error al cargar ventas del mes:', error);
+            return;
+        }
+        
+        // Agrupar ventas por día
+        ventasPorDia = {};
+        ventas.forEach(venta => {
+            const fecha = venta.creado_en.split('T')[0];
+            if (!ventasPorDia[fecha]) {
+                ventasPorDia[fecha] = [];
+            }
+            ventasPorDia[fecha].push(venta);
+        });
+        
+        // Marcar días con ventas
+        Object.keys(ventasPorDia).forEach(fecha => {
+            const diaElemento = document.querySelector(`[data-fecha="${fecha}"]`);
+            if (diaElemento) {
+                diaElemento.classList.add('has-sales');
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error al cargar ventas del mes:', error);
+    }
+}
+
+// Cargar ventas del día seleccionado
+async function cargarVentasDelDia(fecha) {
+    console.log('Cargando ventas para fecha:', fecha); // Para depuración
+    
+    const ventasDiaLoading = document.getElementById('ventas-dia-loading');
+    const ventasDiaTable = document.getElementById('ventas-dia-table');
+    const ventasDiaError = document.getElementById('ventas-dia-error');
+    const ventasDiaBody = document.getElementById('ventas-dia-body');
+    
+    // Mostrar loading
+    ventasDiaLoading.style.display = 'block';
+    ventasDiaTable.style.display = 'none';
+    ventasDiaError.style.display = 'none';
+    
+    try {
+        const { data: ventas, error } = await supabaseClient
+            .from('ventas')
+            .select('*')
+            .eq('usuario_id', userId)
+            .gte('creado_en', `${fecha}T00:00:00`)
+            .lt('creado_en', `${fecha}T23:59:59`)
+            .order('creado_en', { ascending: true });
+        
+        if (error) {
+            console.error('Error al cargar ventas del día:', error);
+            ventasDiaLoading.style.display = 'none';
+            ventasDiaError.innerHTML = `<div class="error">Error al cargar ventas: ${error.message}</div>`;
+            ventasDiaError.style.display = 'block';
+            return;
+        }
+        
+        console.log('Ventas del día obtenidas:', ventas); // Para depuración
+        
+        ventasDiaLoading.style.display = 'none';
+        
+        if (ventas && ventas.length > 0) {
+            ventasDiaTable.style.display = 'block';
+            mostrarVentasDelDia(ventas);
+        } else {
+            ventasDiaTable.style.display = 'block';
+            ventasDiaBody.innerHTML = `<tr><td colspan="4" style="text-align: center;">No hay ventas para este día</td></tr>`;
+        }
+        
+    } catch (error) {
+        console.error('Error general al cargar ventas del día:', error);
+        ventasDiaLoading.style.display = 'none';
+        ventasDiaError.innerHTML = `<div class="error">Error al cargar ventas: ${error.message}</div>`;
+        ventasDiaError.style.display = 'block';
+    }
+}
+
+// Mostrar ventas del día seleccionado
+function mostrarVentasDelDia(ventas) {
+    const tbody = document.getElementById('ventas-dia-body');
+    tbody.innerHTML = '';
+    
+    ventas.forEach(venta => {
+        const row = document.createElement('tr');
+        
+        // Extraer hora de la fecha
+        const hora = new Date(venta.creado_en).toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        // Nombre del cliente
+        const nombreCliente = venta.cliente_nombre || 'Efectivo';
+        const apellidoCliente = venta.cliente_apellido || '';
+        const clienteCompleto = `${nombreCliente} ${apellidoCliente}`.trim();
+        
+        row.innerHTML = `
+            <td>${hora}</td>
+            <td>${clienteCompleto}</td>
+            <td>${venta.metodo_pago}</td>
+            <td>$${parseFloat(venta.total).toFixed(2)}</td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+}
 </script>
 </body>
 </html>
+
 
 
 
