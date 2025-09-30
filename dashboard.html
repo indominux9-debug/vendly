@@ -506,26 +506,28 @@ try {
         }
 
         function mostrarEstadisticas(ventas) {
-            let totalVendido = 0;
-            let totalEfectivo = 0;
-            let totalTransferencia = 0;
+    let totalVendido = 0;
+    let totalEfectivo = 0;
+    let totalTransferencia = 0;
 
-            ventas.forEach(venta => {
-                totalVendido += parseFloat(venta.total);
-                
-                if (venta.metodo_pago === 'efectivo') {
-                    totalEfectivo += parseFloat(venta.total);
-                } else {
-                    totalTransferencia += parseFloat(venta.total);
-                }
-            });
+    console.log('Calculando estadísticas para', ventas.length, 'ventas'); // Para depuración
 
-            document.getElementById('total-vendido').textContent = totalVendido.toFixed(2);
-            document.getElementById('total-efectivo').textContent = totalEfectivo.toFixed(2);
-            document.getElementById('total-transferencia').textContent = totalTransferencia.toFixed(2);
-            document.getElementById('total-ventas').textContent = ventas.length;
+    ventas.forEach(venta => {
+        console.log('Venta:', venta); // Para depuración
+        totalVendido += parseFloat(venta.total);
+        
+        if (venta.metodo_pago === 'efectivo') {
+            totalEfectivo += parseFloat(venta.total);
+        } else {
+            totalTransferencia += parseFloat(venta.total);
         }
+    });
 
+    document.getElementById('total-vendido').textContent = totalVendido.toFixed(2);
+    document.getElementById('total-efectivo').textContent = totalEfectivo.toFixed(2);
+    document.getElementById('total-transferencia').textContent = totalTransferencia.toFixed(2);
+    document.getElementById('total-ventas').textContent = ventas.length;
+}
         async function agregarProducto() {
             const nombre = document.getElementById('nuevo-producto').value;
             const precio = parseFloat(document.getElementById('nuevo-precio').value);
@@ -618,4 +620,5 @@ try {
     </script>
 </body>
 </html>
+
 
