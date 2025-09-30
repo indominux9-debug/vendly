@@ -561,10 +561,20 @@ try {
         }
 
         function mostrarInventario(productos) {
+            console.log('Mostrando inventario con productos:', productos); // Para depuración
+            
             const tbody = document.getElementById('inventory-body');
             tbody.innerHTML = '';
 
+            if (!productos || productos.length === 0) {
+        console.log('No hay productos para mostrar'); // Para depuración
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No hay productos en inventario</td></tr>';
+        return;
+    }
+
             productos.forEach(producto => {
+                console.log('Procesando producto:', producto); // Para depuración
+                
                 const row = document.createElement('tr');
                 const stockClass = producto.stock < 5 ? 'low-stock' : '';
                 
@@ -583,6 +593,8 @@ try {
                 
                 tbody.appendChild(row);
             });
+
+            console.log('Inventario mostrado correctamente'); // Para depuración
         }
 
         function mostrarEstadisticas(ventas) {
@@ -719,6 +731,7 @@ try {
 </script>
 </body>
 </html>
+
 
 
 
