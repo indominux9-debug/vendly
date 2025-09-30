@@ -513,7 +513,7 @@ const { data: productos, error: error1 } = await supabaseClient
                     document.getElementById('inventory-body').innerHTML = `<tr><td colspan="4" style="text-align: center;">No hay productos en inventario</td></tr>`;
                 }
 
-                // Cargar ventas del día - CORREGIDO
+                // Cargar ventas del día - CORREGIDO Y SEGURO
 try {
     console.log('Cargando ventas del día...'); // Para depuración
     
@@ -701,5 +701,6 @@ try {
     </script>
 </body>
 </html>
+
 
 
