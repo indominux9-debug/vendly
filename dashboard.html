@@ -487,13 +487,12 @@
             console.log('=== INICIANDO CARGA DE DATOS ==='); // Para depuración
             
             try {
-                // Cargar inventario
-                console.log('Cargando inventario...'); // Para depuración
-                const {  productos, error: error1 } = await supabaseClient
-                    .from('productos')
-                    .select('*')
-                    .order('nombre', { ascending: true });
-
+                // Cargar inventario - CORREGIDO
+const { data: productos, error: error1 } = await supabaseClient
+    .from('productos')
+    .select('*')
+    .order('nombre', { ascending: true });
+                
                 if (error1) {
                     console.error('Error al cargar productos:', error1);
                     document.getElementById('inventario-loading').style.display = 'none';
@@ -514,18 +513,14 @@
                     document.getElementById('inventory-body').innerHTML = `<tr><td colspan="4" style="text-align: center;">No hay productos en inventario</td></tr>`;
                 }
 
-                // Cargar ventas del día
-                console.log('Cargando ventas del día...'); // Para depuración
-                const hoy = new Date().toISOString().split('T')[0];
-                console.log('Fecha de hoy:', hoy); // Para depuración
-                
-                const {  ventas, error: error2 } = await supabaseClient
-                    .from('ventas')
-                    .select('*')
-                    .eq('usuario_id', userId)
-                    .gte('creado_en', `${hoy}T00:00:00`)
-                    .lt('creado_en', `${hoy}T23:59:59`)
-                    .order('creado_en', { ascending: false });
+                // Cargar ventas del día - CORREGIDO
+const { data: ventas, error: error2 } = await supabaseClient
+    .from('ventas')
+    .select('*')
+    .eq('usuario_id', userId)
+    .gte('creado_en', `${hoy}T00:00:00`)
+    .lt('creado_en', `${hoy}T23:59:59`)
+    .order('creado_en', { ascending: false });
 
                 if (error2) {
                     console.error('Error al cargar ventas:', error2);
@@ -698,3 +693,4 @@
     </script>
 </body>
 </html>
+
