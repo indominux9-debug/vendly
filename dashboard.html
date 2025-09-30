@@ -114,6 +114,129 @@
             margin: 20px 0 10px 0;
         }
 
+        /* Calendario */
+.calendar-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.calendar-header h4 {
+    margin: 0;
+    color: #333;
+    font-size: 20px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-weight: bold;
+    color: #666;
+    padding: 10px 5px;
+    font-size: 14px;
+}
+
+.calendar-day {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px 5px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.calendar-day:hover {
+    background: #e3f2fd;
+    border-color: #2196f3;
+}
+
+.calendar-day.selected {
+    background: #2196f3;
+    color: white;
+    border-color: #1976d2;
+}
+
+.calendar-day.has-sales {
+    background: #e8f5e9;
+    border-color: #4caf50;
+}
+
+.calendar-day.has-sales.selected {
+    background: #4caf50;
+    color: white;
+    border-color: #388e3c;
+}
+
+.calendar-day.other-month {
+    color: #ccc;
+    background: #f5f5f5;
+}
+
+.calendar-day.other-month:hover {
+    background: #eeeeee;
+}
+
+/* Ventas del día */
+.ventas-dia-section {
+    margin: 30px 0;
+}
+
+/* Media Queries para calendario */
+@media (max-width: 768px) {
+    .calendar-grid {
+        gap: 3px;
+    }
+    
+    .calendar-day-header {
+        font-size: 12px;
+        padding: 8px 3px;
+    }
+    
+    .calendar-day {
+        padding: 8px 3px;
+        font-size: 12px;
+    }
+    
+    .calendar-header h4 {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-grid {
+        gap: 2px;
+    }
+    
+    .calendar-day-header {
+        font-size: 10px;
+        padding: 6px 2px;
+    }
+    
+    .calendar-day {
+        padding: 6px 2px;
+        font-size: 10px;
+    }
+    
+    .calendar-header h4 {
+        font-size: 16px;
+    }
+}
+
         /* Estilos de tabla responsiva */
         .table-container {
             overflow-x: auto;
@@ -430,6 +553,51 @@
             </div>
         </div>
 
+        <!-- Calendario -->
+<div class="calendar-section">
+    <h3 class="section-title">Calendario de Ventas</h3>
+    <div class="calendar-header">
+        <button class="btn btn-secondary" onclick="mesAnterior()">◀</button>
+        <h4 id="mes-actual"></h4>
+        <button class="btn btn-secondary" onclick="mesSiguiente()">▶</button>
+    </div>
+    <div class="calendar-grid" id="calendar-grid">
+        <!-- Días de la semana -->
+        <div class="calendar-day-header">Dom</div>
+        <div class="calendar-day-header">Lun</div>
+        <div class="calendar-day-header">Mar</div>
+        <div class="calendar-day-header">Mié</div>
+        <div class="calendar-day-header">Jue</div>
+        <div class="calendar-day-header">Vie</div>
+        <div class="calendar-day-header">Sáb</div>
+        <!-- Días del mes se generarán aquí -->
+    </div>
+</div>
+
+<!-- Ventas del día seleccionado -->
+<div class="ventas-dia-section">
+    <h3 class="section-title">Ventas del Día Seleccionado</h3>
+    <div id="ventas-dia-loading" class="loading" style="display: none;">
+        Cargando ventas...
+    </div>
+    <div id="ventas-dia-table" style="display: none;" class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Hora</th>
+                    <th>Cliente</th>
+                    <th>Método</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="ventas-dia-body">
+                <!-- Ventas se cargarán aquí -->
+            </tbody>
+        </table>
+    </div>
+    <div id="ventas-dia-error" style="display: none;"></div>
+</div>
+        
         <h3 class="section-title">Inventario</h3>
         <div id="inventario-loading" class="loading">
             Cargando productos...
@@ -742,6 +910,7 @@ try {
 </script>
 </body>
 </html>
+
 
 
 
