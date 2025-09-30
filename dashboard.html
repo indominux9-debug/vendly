@@ -41,21 +41,21 @@
 
         .header h2 {
             color: #333;
-            font-size: 24px;
             margin: 0;
+            font-size: 24px;
         }
 
         .btn {
-            padding: 10px 15px;
+            padding: 12px 16px;
             background: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
             text-decoration: none;
             text-align: center;
-            font-size: 14px;
-            min-width: 100px;
+            font-size: 16px;
+            min-width: 120px;
             flex: 1 1 auto;
         }
 
@@ -97,18 +97,18 @@
         .stat-card h3 {
             margin: 0;
             color: #666;
-            font-size: 14px;
+            font-size: 16px;
         }
 
         .stat-card p {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
             color: #007bff;
             margin: 10px 0 0 0;
         }
 
         .section-title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 600;
             color: #333;
             margin: 20px 0 10px 0;
@@ -153,9 +153,9 @@
         }
 
         .action-buttons .btn {
-            padding: 5px 10px;
-            font-size: 12px;
-            min-width: 60px;
+            padding: 6px 12px;
+            font-size: 14px;
+            min-width: 70px;
         }
 
         /* Formulario de agregar producto */
@@ -174,15 +174,15 @@
             display: block;
             margin-bottom: 5px;
             color: #555;
-            font-size: 14px;
+            font-size: 16px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 16px;
         }
 
         /* Carga y errores */
@@ -190,7 +190,7 @@
             text-align: center;
             padding: 20px;
             color: #666;
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .error {
@@ -201,10 +201,10 @@
             border: 1px solid #f5c6cb;
             border-radius: 4px;
             margin: 10px 0;
-            font-size: 14px;
+            font-size: 16px;
         }
 
-        /* Media Queries */
+        /* Media Queries - Texto ajustado en móviles */
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -216,32 +216,42 @@
                 align-items: stretch;
             }
 
+            .header h2 {
+                font-size: 22px;
+                text-align: center;
+            }
+
             .btn {
                 min-width: 100%;
-                padding: 12px;
+                padding: 14px;
                 font-size: 16px;
+                margin: 5px 0;
             }
 
             .stats {
                 grid-template-columns: 1fr;
-                gap: 10px;
+                gap: 12px;
             }
 
             .stat-card {
                 padding: 12px;
-                font-size: 14px;
+            }
+
+            .stat-card h3 {
+                font-size: 16px;
             }
 
             .stat-card p {
-                font-size: 18px;
+                font-size: 22px;
             }
 
             .section-title {
-                font-size: 18px;
+                font-size: 20px;
+                text-align: center;
             }
 
             .table-container {
-                margin-top: 10px;
+                margin-top: 12px;
             }
 
             table {
@@ -249,63 +259,8 @@
             }
 
             th, td {
-                padding: 8px;
-                font-size: 14px;
-            }
-
-            .action-buttons .btn {
-                padding: 8px 12px;
-                font-size: 14px;
-            }
-
-            .add-product-section {
-                padding: 15px;
-            }
-
-            .form-group input {
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 10px;
-                margin: 5px;
-            }
-
-            .header h2 {
-                font-size: 20px;
-            }
-
-            .btn {
                 padding: 10px;
                 font-size: 14px;
-            }
-
-            .stat-card {
-                padding: 10px;
-                font-size: 12px;
-            }
-
-            .stat-card p {
-                font-size: 16px;
-            }
-
-            .section-title {
-                font-size: 16px;
-            }
-
-            .table-container {
-                margin-top: 5px;
-            }
-
-            table {
-                min-width: 300px;
-            }
-
-            th, td {
-                padding: 6px;
-                font-size: 12px;
             }
 
             .action-buttons .btn {
@@ -314,11 +269,134 @@
             }
 
             .add-product-section {
+                padding: 12px;
+            }
+
+            .form-group label {
+                font-size: 16px;
+            }
+
+            .form-group input {
+                font-size: 16px;
                 padding: 10px;
+            }
+
+            .loading {
+                font-size: 16px;
+                padding: 15px;
+            }
+
+            .error {
+                font-size: 14px;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 12px;
+                margin: 8px;
+            }
+
+            .header h2 {
+                font-size: 20px;
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .stat-card {
+                padding: 10px;
+            }
+
+            .stat-card h3 {
+                font-size: 14px;
+            }
+
+            .stat-card p {
+                font-size: 20px;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+
+            table {
+                min-width: 300px;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .action-buttons .btn {
+                padding: 5px 8px;
+                font-size: 10px;
+                min-width: 50px;
+            }
+
+            .form-group label {
+                font-size: 14px;
+            }
+
+            .form-group input {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            .loading {
+                font-size: 14px;
+            }
+
+            .error {
+                font-size: 12px;
+            }
+        }
+
+        /* Texto aún más pequeño para pantallas muy pequeñas */
+        @media (max-width: 360px) {
+            .header h2 {
+                font-size: 18px;
+            }
+
+            .btn {
+                font-size: 12px;
+                padding: 10px;
+            }
+
+            .stat-card h3 {
+                font-size: 12px;
+            }
+
+            .stat-card p {
+                font-size: 18px;
+            }
+
+            .section-title {
+                font-size: 16px;
+            }
+
+            th, td {
+                font-size: 10px;
+                padding: 6px;
+            }
+
+            .action-buttons .btn {
+                padding: 4px 6px;
+                font-size: 8px;
+                min-width: 40px;
+            }
+
+            .form-group label {
+                font-size: 12px;
             }
 
             .form-group input {
                 font-size: 12px;
+                padding: 6px;
             }
         }
     </style>
@@ -406,9 +484,12 @@
 
         // Cargar datos desde Supabase
         async function cargarDatos() {
+            console.log('=== INICIANDO CARGA DE DATOS ==='); // Para depuración
+            
             try {
                 // Cargar inventario
-                const { data: productos, error: error1 } = await supabaseClient
+                console.log('Cargando inventario...'); // Para depuración
+                const {  productos, error: error1 } = await supabaseClient
                     .from('productos')
                     .select('*')
                     .order('nombre', { ascending: true });
@@ -433,51 +514,48 @@
                     document.getElementById('inventory-body').innerHTML = `<tr><td colspan="4" style="text-align: center;">No hay productos en inventario</td></tr>`;
                 }
 
-                // Cargar ventas del día - MEJORADO PARA ZONA HORARIA
-try {
-    // Obtener fecha actual en formato YYYY-MM-DD
-    const ahora = new Date();
-    const año = ahora.getFullYear();
-    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-    const dia = String(ahora.getDate()).padStart(2, '0');
-    const hoy = `${año}-${mes}-${dia}`;
-    
-    console.log('Consultando ventas para fecha:', hoy); // Para depuración
-    
-    const {  ventas, error: error2 } = await supabaseClient
-        .from('ventas')
-        .select('*')
-        .eq('usuario_id', userId)
-        .gte('creado_en', `${hoy}T00:00:00`)
-        .lt('creado_en', `${hoy}T23:59:59`)
-        .order('creado_en', { ascending: false });
+                // Cargar ventas del día
+                console.log('Cargando ventas del día...'); // Para depuración
+                const hoy = new Date().toISOString().split('T')[0];
+                console.log('Fecha de hoy:', hoy); // Para depuración
+                
+                const {  ventas, error: error2 } = await supabaseClient
+                    .from('ventas')
+                    .select('*')
+                    .eq('usuario_id', userId)
+                    .gte('creado_en', `${hoy}T00:00:00`)
+                    .lt('creado_en', `${hoy}T23:59:59`)
+                    .order('creado_en', { ascending: false });
 
-    if (error2) {
-        console.error('Error al cargar ventas:', error2);
-        document.getElementById('total-ventas').textContent = '0';
-        document.getElementById('total-vendido').textContent = '0.00';
-        document.getElementById('total-efectivo').textContent = '0.00';
-        document.getElementById('total-transferencia').textContent = '0.00';
-        return;
-    }
+                if (error2) {
+                    console.error('Error al cargar ventas:', error2);
+                    document.getElementById('total-ventas').textContent = '0';
+                    document.getElementById('total-vendido').textContent = '0.00';
+                    document.getElementById('total-efectivo').textContent = '0.00';
+                    document.getElementById('total-transferencia').textContent = '0.00';
+                    return;
+                }
 
-    console.log('Ventas obtenidas:', ventas); // Para depuración
+                console.log('Ventas obtenidas:', ventas); // Para depuración
 
-    if (ventas && ventas.length > 0) {
-        mostrarEstadisticas(ventas);
-    } else {
-        document.getElementById('total-ventas').textContent = '0';
-        document.getElementById('total-vendido').textContent = '0.00';
-        document.getElementById('total-efectivo').textContent = '0.00';
-        document.getElementById('total-transferencia').textContent = '0.00';
-    }
-} catch (error) {
-    console.error('Error al cargar ventas:', error);
-    document.getElementById('total-ventas').textContent = '0';
-    document.getElementById('total-vendido').textContent = '0.00';
-    document.getElementById('total-efectivo').textContent = '0.00';
-    document.getElementById('total-transferencia').textContent = '0.00';
-}
+                if (ventas && ventas.length > 0) {
+                    mostrarEstadisticas(ventas);
+                } else {
+                    console.log('No se encontraron ventas para hoy'); // Para depuración
+                    document.getElementById('total-ventas').textContent = '0';
+                    document.getElementById('total-vendido').textContent = '0.00';
+                    document.getElementById('total-efectivo').textContent = '0.00';
+                    document.getElementById('total-transferencia').textContent = '0.00';
+                }
+            } catch (error) {
+                console.error('Error general en cargarDatos:', error);
+                document.getElementById('inventario-loading').style.display = 'none';
+                document.getElementById('inventario-error').innerHTML = `<div class="error">Error al cargar datos: ${error.message}</div>`;
+                document.getElementById('inventario-error').style.display = 'block';
+            }
+            
+            console.log('=== FIN DE CARGA DE DATOS ==='); // Para depuración
+        }
 
         function mostrarInventario(productos) {
             const tbody = document.getElementById('inventory-body');
@@ -505,28 +583,29 @@ try {
         }
 
         function mostrarEstadisticas(ventas) {
-    let totalVendido = 0;
-    let totalEfectivo = 0;
-    let totalTransferencia = 0;
+            let totalVendido = 0;
+            let totalEfectivo = 0;
+            let totalTransferencia = 0;
 
-    console.log('Calculando estadísticas para', ventas.length, 'ventas'); // Para depuración
+            console.log('Calculando estadísticas para', ventas.length, 'ventas'); // Para depuración
 
-    ventas.forEach(venta => {
-        console.log('Venta:', venta); // Para depuración
-        totalVendido += parseFloat(venta.total);
-        
-        if (venta.metodo_pago === 'efectivo') {
-            totalEfectivo += parseFloat(venta.total);
-        } else {
-            totalTransferencia += parseFloat(venta.total);
+            ventas.forEach(venta => {
+                console.log('Venta procesada:', venta); // Para depuración
+                totalVendido += parseFloat(venta.total);
+                
+                if (venta.metodo_pago === 'efectivo') {
+                    totalEfectivo += parseFloat(venta.total);
+                } else {
+                    totalTransferencia += parseFloat(venta.total);
+                }
+            });
+
+            document.getElementById('total-vendido').textContent = totalVendido.toFixed(2);
+            document.getElementById('total-efectivo').textContent = totalEfectivo.toFixed(2);
+            document.getElementById('total-transferencia').textContent = totalTransferencia.toFixed(2);
+            document.getElementById('total-ventas').textContent = ventas.length;
         }
-    });
 
-    document.getElementById('total-vendido').textContent = totalVendido.toFixed(2);
-    document.getElementById('total-efectivo').textContent = totalEfectivo.toFixed(2);
-    document.getElementById('total-transferencia').textContent = totalTransferencia.toFixed(2);
-    document.getElementById('total-ventas').textContent = ventas.length;
-}
         async function agregarProducto() {
             const nombre = document.getElementById('nuevo-producto').value;
             const precio = parseFloat(document.getElementById('nuevo-precio').value);
@@ -619,6 +698,3 @@ try {
     </script>
 </body>
 </html>
-
-
-
