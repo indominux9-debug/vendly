@@ -191,6 +191,125 @@
     background: #eeeeee;
 }
 
+/* Estadísticas del día seleccionado */
+.ventas-dia-section {
+    margin: 30px 0;
+}
+
+.ventas-dia-section .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.ventas-dia-section .stat-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    border-left: 4px solid #007bff;
+}
+
+.ventas-dia-section .stat-card h3 {
+    margin: 0;
+    color: #666;
+    font-size: 16px;
+}
+
+.ventas-dia-section .stat-card p {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff;
+    margin: 10px 0 0 0;
+}
+
+.ventas-dia-section .loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 18px;
+}
+
+.ventas-dia-section .error {
+    text-align: center;
+    padding: 20px;
+    color: #dc3545;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.ventas-dia-section #ventas-dia-no-data {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 16px;
+}
+
+/* Media Queries para estadísticas del día */
+@media (max-width: 768px) {
+    .ventas-dia-section .stats {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .ventas-dia-section .stat-card {
+        padding: 12px;
+    }
+    
+    .ventas-dia-section .stat-card h3 {
+        font-size: 16px;
+    }
+    
+    .ventas-dia-section .stat-card p {
+        font-size: 22px;
+    }
+    
+    .ventas-dia-section .loading {
+        font-size: 16px;
+        padding: 15px;
+    }
+    
+    .ventas-dia-section .error {
+        font-size: 14px;
+        padding: 15px;
+    }
+    
+    .ventas-dia-section #ventas-dia-no-data {
+        font-size: 14px;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ventas-dia-section .stat-card {
+        padding: 10px;
+    }
+    
+    .ventas-dia-section .stat-card h3 {
+        font-size: 14px;
+    }
+    
+    .ventas-dia-section .stat-card p {
+        font-size: 20px;
+    }
+    
+    .ventas-dia-section .loading {
+        font-size: 14px;
+    }
+    
+    .ventas-dia-section .error {
+        font-size: 12px;
+    }
+    
+    .ventas-dia-section #ventas-dia-no-data {
+        font-size: 12px;
+    }
+}
+        
 /* Ventas del día */
 .ventas-dia-section {
     margin: 30px 0;
@@ -1142,4 +1261,5 @@ function mostrarEstadisticasDelDia(ventas) {
 </script>
 </body>
 </html>
+
 
