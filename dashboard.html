@@ -488,6 +488,7 @@
             
             try {
                 // Cargar inventario - CORREGIDO
+                console.log('Cargando inventario...'); // Para depuración
 const { data: productos, error: error1 } = await supabaseClient
     .from('productos')
     .select('*')
@@ -502,12 +503,16 @@ const { data: productos, error: error1 } = await supabaseClient
                 }
 
                 console.log('Productos obtenidos:', productos); // Para depuración
+                console.log('Tipo de productos:', typeof productos); // Para depuración
+                console.log('Longitud de productos:', productos ? productos.length : 'null'); // Para depuración
 
                 if (productos && productos.length > 0) {
+                    console.log('Mostrando inventario...'); // Para depuración
                     document.getElementById('inventario-loading').style.display = 'none';
                     document.getElementById('inventario-table').style.display = 'block';
                     mostrarInventario(productos);
                 } else {
+                    console.log('No hay productos para mostrar'); // Para depuración
                     document.getElementById('inventario-loading').style.display = 'none';
                     document.getElementById('inventario-table').style.display = 'block';
                     document.getElementById('inventory-body').innerHTML = `<tr><td colspan="4" style="text-align: center;">No hay productos en inventario</td></tr>`;
@@ -731,6 +736,7 @@ try {
 </script>
 </body>
 </html>
+
 
 
 
