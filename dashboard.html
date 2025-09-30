@@ -433,38 +433,51 @@
                     document.getElementById('inventory-body').innerHTML = `<tr><td colspan="4" style="text-align: center;">No hay productos en inventario</td></tr>`;
                 }
 
-                // Cargar ventas del día
-                const hoy = new Date().toISOString().split('T')[0];
-                const { data: ventas, error: error2 } = await supabaseClient
-                    .from('ventas')
-                    .select('*')
-                    .eq('usuario_id', userId)
-                    .gte('creado_en', `${hoy}T00:00:00`)
-                    .lt('creado_en', `${hoy}T23:59:59`);
+                // Cargar ventas del día - MEJORADO PARA ZONA HORARIA
+try {
+    // Obtener fecha actual en formato YYYY-MM-DD
+    const ahora = new Date();
+    const año = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    const hoy = `${año}-${mes}-${dia}`;
+    
+    console.log('Consultando ventas para fecha:', hoy); // Para depuración
+    
+    const {  ventas, error: error2 } = await supabaseClient
+        .from('ventas')
+        .select('*')
+        .eq('usuario_id', userId)
+        .gte('creado_en', `${hoy}T00:00:00`)
+        .lt('creado_en', `${hoy}T23:59:59`)
+        .order('creado_en', { ascending: false });
 
-                if (error2) {
-                    console.error('Error al cargar ventas:', error2);
-                    document.getElementById('total-ventas').textContent = '0';
-                    document.getElementById('total-vendido').textContent = '0.00';
-                    document.getElementById('total-efectivo').textContent = '0.00';
-                    document.getElementById('total-transferencia').textContent = '0.00';
-                    return;
-                }
+    if (error2) {
+        console.error('Error al cargar ventas:', error2);
+        document.getElementById('total-ventas').textContent = '0';
+        document.getElementById('total-vendido').textContent = '0.00';
+        document.getElementById('total-efectivo').textContent = '0.00';
+        document.getElementById('total-transferencia').textContent = '0.00';
+        return;
+    }
 
-                if (ventas) {
-                    mostrarEstadisticas(ventas);
-                } else {
-                    document.getElementById('total-ventas').textContent = '0';
-                    document.getElementById('total-vendido').textContent = '0.00';
-                    document.getElementById('total-efectivo').textContent = '0.00';
-                    document.getElementById('total-transferencia').textContent = '0.00';
-                }
-            } catch (error) {
-                console.error('Error general en cargarDatos:', error);
-                document.getElementById('inventario-loading').style.display = 'none';
-                document.getElementById('inventario-error').innerHTML = `<div class="error">Error al cargar datos: ${error.message}</div>`;
-                document.getElementById('inventario-error').style.display = 'block';
-            }
+    console.log('Ventas obtenidas:', ventas); // Para depuración
+
+    if (ventas && ventas.length > 0) {
+        mostrarEstadisticas(ventas);
+    } else {
+        document.getElementById('total-ventas').textContent = '0';
+        document.getElementById('total-vendido').textContent = '0.00';
+        document.getElementById('total-efectivo').textContent = '0.00';
+        document.getElementById('total-transferencia').textContent = '0.00';
+    }
+} catch (error) {
+    console.error('Error al cargar ventas:', error);
+    document.getElementById('total-ventas').textContent = '0';
+    document.getElementById('total-vendido').textContent = '0.00';
+    document.getElementById('total-efectivo').textContent = '0.00';
+    document.getElementById('total-transferencia').textContent = '0.00';
+}
         }
 
         function mostrarInventario(productos) {
@@ -605,3 +618,4 @@
     </script>
 </body>
 </html>
+
